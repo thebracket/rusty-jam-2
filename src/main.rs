@@ -1,6 +1,7 @@
 use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
+use henry::{spawn_henry, henry_ai};
 use player::{player_movement, spawn_player};
 use region_map::{MapToBuild, RegionMap};
 use tilemap::{tile_lerp, tile_location_added};
@@ -9,6 +10,7 @@ mod console;
 mod player;
 mod region_map;
 mod tilemap;
+mod henry;
 
 fn main() {
     App::new()
@@ -27,7 +29,8 @@ fn main() {
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
-                .with_system(tile_lerp),
+                .with_system(tile_lerp)
+                .with_system(henry_ai),
         )
         .run();
 }
@@ -54,6 +57,9 @@ fn setup(
 
     // Spawn the player
     spawn_player(&mut commands, &assets, region_map.player_start);
+    let mut henry_start = region_map.player_start;
+    henry_start.0 -= 1;
+    spawn_henry(&mut commands, &assets, henry_start);
 
     // Resources
     commands.insert_resource(region_map);

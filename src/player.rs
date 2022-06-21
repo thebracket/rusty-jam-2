@@ -28,7 +28,7 @@ pub fn spawn_player(commands: &mut Commands, assets: &GameAssets, start: (i32, i
             ..default()
         })
         .insert(Player {
-            facing: Facing::Down,
+            facing: Facing::Left,
         })
         .insert(TilePosition {
             x: start.0,

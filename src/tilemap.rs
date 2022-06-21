@@ -166,7 +166,7 @@ pub fn tile_to_screen(x: i32, y: i32) -> (f32, f32) {
     )
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct TilePosition {
     pub x: i32,
     pub y: i32,
