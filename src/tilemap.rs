@@ -178,6 +178,7 @@ pub struct LerpMove {
     pub end: (i32, i32),
     pub step: u32,
     pub jumping: bool,
+    pub animate: Option<Vec<usize>>,
 }
 
 pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Added<TilePosition>>) {
@@ -188,10 +189,10 @@ pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Add
 }
 
 pub fn tile_lerp(
-    mut query: Query<(Entity, &mut LerpMove, &mut TilePosition, &mut Transform)>,
+    mut query: Query<(Entity, &mut LerpMove, &mut TilePosition, &mut Transform, &mut TextureAtlasSprite)>,
     mut commands: Commands,
 ) {
-    for (entity, mut lerp, mut pos, mut trans) in query.iter_mut() {
+    for (entity, mut lerp, mut pos, mut trans, mut sprite) in query.iter_mut() {
         lerp.step += 1;
 
         let start = tile_to_screen(lerp.start.0, lerp.start.1);
@@ -200,6 +201,11 @@ pub fn tile_lerp(
 
         trans.translation.x = start.0 + (step.0 * lerp.step as f32);
         trans.translation.y = start.1 + (step.1 * lerp.step as f32);
+
+        if let Some(animate) = &lerp.animate {
+            let frame = lerp.step % animate.len() as u32;
+            sprite.index = animate[frame as usize];
+        }
 
         if lerp.jumping {
             match lerp.step {
@@ -216,6 +222,9 @@ pub fn tile_lerp(
 
         // Finish the move
         if lerp.step > 8 {
+            if let Some(animate) = &lerp.animate {
+                sprite.index = animate[0];
+            }
             pos.x = lerp.end.0;
             pos.y = lerp.end.1;
             let tts = tile_to_screen(pos.x, pos.y);

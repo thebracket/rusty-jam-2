@@ -83,6 +83,13 @@ pub fn player_movement(
             map.interact(target.0, target.1, &console);
         }
 
+        sprite.index = match player.facing {
+            Facing::Left => 12,
+            Facing::Right => 0,
+            Facing::Up => 6,
+            Facing::Down => 18,
+        };
+
         if delta != (0, 0) {
             let destination = (
                 (tile_pos.x + delta.0).clamp(0, NUM_TILES_X as i32 - 1),
@@ -94,15 +101,14 @@ pub fn player_movement(
                     end: destination,
                     step: 0,
                     jumping,
+                    animate: match player.facing {
+                        Facing::Left => Some(vec![12, 13, 14, 15, 16, 17]),
+                        Facing::Right => Some(vec![0, 1, 2, 3, 4, 5]),
+                        Facing::Up => Some(vec![6, 7, 8, 9, 10, 11]),
+                        Facing::Down => Some(vec![18, 19, 20, 21, 22, 23]),
+                    }
                 });
             }
         }
-
-        sprite.index = match player.facing {
-            Facing::Left => 12,
-            Facing::Right => 0,
-            Facing::Up => 6,
-            Facing::Down => 18,
-        };
     }
 }
