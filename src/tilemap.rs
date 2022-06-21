@@ -20,6 +20,8 @@ pub enum TileType {
     Bush,
     Flower,
     Road,
+    HayCart,
+    ReferTo(usize),
 }
 
 impl TileType {
@@ -33,12 +35,28 @@ impl TileType {
             TileType::Bush => 4,
             TileType::Flower => 5,
             TileType::Road => 6,
+            _ => 0,
+        }
+    }
+
+    fn should_render(&self) -> bool {
+        match self {
+            TileType::None => false,
+            TileType::ReferTo(..) => false,
+            _ => true,
+        }
+    }
+
+    fn extra_big(&self) -> Option<(i32, i32, Vec<usize>)> {
+        match self {
+            TileType::HayCart => Some((3, 2, vec![16, 17, 18, 32, 33, 34])),
+            _ => None,
         }
     }
 
     pub fn can_player_enter(&self) -> bool {
         match self {
-            TileType::FenceHorizontal | TileType::FenceVertical | TileType::Bush => false,
+            TileType::FenceHorizontal | TileType::FenceVertical | TileType::Bush | TileType::HayCart => false,
             _ => true,
         }
     }
@@ -88,37 +106,36 @@ impl TileMapLayer {
         for y in 0..self.height_tiles {
             for x in 0..self.width_tiles {
                 let idx = tile_index(x as i32, y as i32);
-                if tile_indices[idx] != TileType::None {
-                    let pos = tile_to_screen(x as i32, y as i32);
-                    let left = pos.0 - (TILE_WIDTH as f32 / 2.0);
-                    let right = pos.0 + (TILE_WIDTH as f32 / 2.0);
-                    let top = pos.1 - (TILE_HEIGHT as f32 / 2.0);
-                    let bottom = pos.1 + (TILE_HEIGHT as f32 / 2.0);
-
-                    vertices.push([left, top, self.z]);
-                    vertices.push([right, top, self.z]);
-                    vertices.push([left, bottom, self.z]);
-                    vertices.push([right, bottom, self.z]);
-
-                    for _ in 0..4 {
-                        normals.push([0.0, 1.0, 0.0]);
+                if tile_indices[idx].should_render() {
+                    if let Some((width, height, tiles)) = tile_indices[idx].extra_big() {
+                        let mut counter = 0;
+                        for ty in 0..height {
+                            for tx in 0..width {
+                                self.push_tile(
+                                    x + tx as usize,
+                                    y + ty as usize,
+                                    &self.texture_coords_specific(tiles[counter]),
+                                    &mut vertices,
+                                    &mut normals,
+                                    &mut uv,
+                                    &mut indices,
+                                    &mut index_count,
+                                );
+                                counter += 1;
+                            }
+                        }
+                    } else {
+                        self.push_tile(
+                            x,
+                            y,
+                            &self.texture_coords(idx, tile_indices),
+                            &mut vertices,
+                            &mut normals,
+                            &mut uv,
+                            &mut indices,
+                            &mut index_count,
+                        );
                     }
-
-                    let tex = self.texture_coords(idx, tile_indices);
-                    uv.push([tex[0], tex[3]]);
-                    uv.push([tex[2], tex[3]]);
-                    uv.push([tex[0], tex[1]]);
-                    uv.push([tex[2], tex[1]]);
-
-                    indices.push(index_count);
-                    indices.push(index_count + 1);
-                    indices.push(index_count + 2);
-
-                    indices.push(index_count + 3);
-                    indices.push(index_count + 2);
-                    indices.push(index_count + 1);
-
-                    index_count += 4;
                 }
             }
         }
@@ -131,11 +148,78 @@ impl TileMapLayer {
         mesh
     }
 
+    fn push_tile(
+        &self,
+        x: usize,
+        y: usize,
+        tex: &[f32; 4],
+        vertices: &mut Vec<[f32; 3]>,
+        normals: &mut Vec<[f32; 3]>,
+        uv: &mut Vec<[f32; 2]>,
+        indices: &mut Vec<u32>,
+        index_count: &mut u32,
+    ) {
+        let pos = tile_to_screen(x as i32, y as i32);
+        let left = pos.0 - (TILE_WIDTH as f32 / 2.0);
+        let right = pos.0 + (TILE_WIDTH as f32 / 2.0);
+        let top = pos.1 - (TILE_HEIGHT as f32 / 2.0);
+        let bottom = pos.1 + (TILE_HEIGHT as f32 / 2.0);
+
+        vertices.push([left, top, self.z]);
+        vertices.push([right, top, self.z]);
+        vertices.push([left, bottom, self.z]);
+        vertices.push([right, bottom, self.z]);
+
+        for _ in 0..4 {
+            normals.push([0.0, 1.0, 0.0]);
+        }
+
+        //let tex = self.texture_coords(idx, tile_indices);
+        uv.push([tex[0], tex[3]]);
+        uv.push([tex[2], tex[3]]);
+        uv.push([tex[0], tex[1]]);
+        uv.push([tex[2], tex[1]]);
+
+        indices.push(*index_count);
+        indices.push(*index_count + 1);
+        indices.push(*index_count + 2);
+
+        indices.push(*index_count + 3);
+        indices.push(*index_count + 2);
+        indices.push(*index_count + 1);
+
+        *index_count += 4;
+    }
+
     fn texture_coords(&self, idx: usize, tile_indices: &[TileType]) -> [f32; 4] {
         const SHEET_WIDTH: usize = 16;
         const SHEET_HEIGHT: usize = 16;
 
         let tile_idx = tile_indices[idx].index();
+        let tile_x = tile_idx % SHEET_WIDTH;
+        let tile_y = tile_idx / SHEET_WIDTH;
+
+        let width = 1.0 / SHEET_WIDTH as f32;
+        let height = 1.0 / SHEET_HEIGHT as f32;
+
+        let left = width * tile_x as f32;
+        let right = left + width;
+        let top = height * tile_y as f32;
+        let bottom = top + height;
+
+        [
+            left,   // Left X
+            top,    // Top Y
+            right,  // Right X
+            bottom, // Bottom Y
+        ]
+    }
+
+    fn texture_coords_specific(&self, idx: usize) -> [f32; 4] {
+        const SHEET_WIDTH: usize = 16;
+        const SHEET_HEIGHT: usize = 16;
+
+        let tile_idx = idx;
         let tile_x = tile_idx % SHEET_WIDTH;
         let tile_y = tile_idx / SHEET_WIDTH;
 
@@ -181,7 +265,12 @@ pub struct LerpMove {
     pub animate: Option<Vec<usize>>,
 }
 
-pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Or<(Added<TilePosition>, Changed<TilePosition>)>>) {
+pub fn tile_location_added(
+    mut query: Query<
+        (&TilePosition, &mut Transform),
+        Or<(Added<TilePosition>, Changed<TilePosition>)>,
+    >,
+) {
     query.for_each_mut(|(tile_pos, mut trans)| {
         let tts = tile_to_screen(tile_pos.x, tile_pos.y);
         trans.translation = Vec3::new(tts.0, tts.1, trans.translation.z);

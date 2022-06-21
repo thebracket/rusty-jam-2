@@ -181,7 +181,15 @@ impl RegionMap {
 
     pub fn can_player_enter(&self, x: i32, y: i32) -> bool {
         let idx = tile_index(x, y);
-        self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter()
+        let mut can_go = true;
+        if let TileType::ReferTo(refer_idx) = self.base_tiles[idx] {
+            if !self.base_tiles[refer_idx].can_player_enter() { can_go = false; }
+        } else if let TileType::ReferTo(refer_idx) = self.features[idx] {
+            if !self.features[refer_idx].can_player_enter() { can_go = false; }
+        } else {
+            can_go = self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter();
+        }
+        can_go
     }
 
     pub fn interact(&self, x: i32, y: i32, console: &Console) {
@@ -326,6 +334,9 @@ fn build_toms_house() -> MapTransfer {
         }
     }
 
+    // Add a haycart
+    spawn_big_feature(10, 5, TileType::HayCart, &mut features);
+
     MapTransfer {
         tiles,
         features,
@@ -333,4 +344,24 @@ fn build_toms_house() -> MapTransfer {
         player_start,
         exits,
     }
+}
+
+fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType]) {
+    let (width, height) = match feature {
+        TileType::HayCart => (3, 2),
+        _ => (0,0)
+    };
+
+    if width == 0 || height == 0 {
+        return;
+    }
+
+    let base_idx = tile_index(x, y);
+    for tx in 0..width {
+        for ty in 0..height {
+            let idx = tile_index(x+tx, y+ty);
+            features[idx] = TileType::ReferTo(base_idx);
+        }
+    }
+    features[base_idx] = feature;
 }
