@@ -1,7 +1,8 @@
 use crate::{
     assets::GameAssets,
+    console::Console,
     region_map::RegionMap,
-    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, console::Console,
+    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::prelude::*;
 

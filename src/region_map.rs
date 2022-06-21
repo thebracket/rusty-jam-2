@@ -1,6 +1,7 @@
 use crate::{
     assets::GameAssets,
-    tilemap::{TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y}, console::Console,
+    console::Console,
+    tilemap::{TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bracket_random::prelude::RandomNumberGenerator;
@@ -131,7 +132,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
-    
+
     // Coup
     for x in player_start.0 - 5..player_start.0 + 5 {
         for y in player_start.1 - 3..player_start.1 + 3 {
@@ -147,9 +148,9 @@ fn build_farmer_tom_coup() -> MapTransfer {
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {
         features[tile_index(x, 0)] = TileType::Bush;
-        features[tile_index(x, NUM_TILES_Y as i32 -1)] = TileType::Bush;
+        features[tile_index(x, NUM_TILES_Y as i32 - 1)] = TileType::Bush;
         for y in 0..rng.range(1, 5) {
-            features[tile_index(x, NUM_TILES_Y as i32 -1 - y)] = TileType::Bush;
+            features[tile_index(x, NUM_TILES_Y as i32 - 1 - y)] = TileType::Bush;
         }
         for y in 0..rng.range(1, 5) {
             features[tile_index(x, y)] = TileType::Bush;
@@ -162,7 +163,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
             features[tile_index(x, y)] = TileType::Bush;
         }
         for x in 0..rng.range(1, 5) {
-            features[tile_index(NUM_TILES_X as i32 -1 - x, y)] = TileType::Bush;
+            features[tile_index(NUM_TILES_X as i32 - 1 - x, y)] = TileType::Bush;
         }
     }
 
@@ -175,7 +176,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
     });
 
     for y in 0..player_start.1 - 3 {
-        for x in player_start.0 -1 .. player_start.0 + 2 {
+        for x in player_start.0 - 1..player_start.0 + 2 {
             tiles[tile_index(x, y)] = TileType::Road;
             features[tile_index(x, y)] = TileType::None;
         }

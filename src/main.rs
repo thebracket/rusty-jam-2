@@ -1,14 +1,14 @@
 use assets::GameAssets;
-use bevy::{prelude::*, core::FixedTimestep};
-use console::{Console, console_setup, update_consoles};
+use bevy::{core::FixedTimestep, prelude::*};
+use console::{console_setup, update_consoles, Console};
 use player::{player_movement, spawn_player};
 use region_map::{MapToBuild, RegionMap};
-use tilemap::{tile_location_added, tile_lerp};
+use tilemap::{tile_lerp, tile_location_added};
 mod assets;
+mod console;
 mod player;
 mod region_map;
 mod tilemap;
-mod console;
 
 fn main() {
     App::new()
@@ -25,8 +25,9 @@ fn main() {
         .add_system(tile_location_added)
         .add_system(update_consoles)
         .add_system_set(
-            SystemSet::new().with_run_criteria(FixedTimestep::step(1.0 / 30.0))
-            .with_system(tile_lerp)
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
+                .with_system(tile_lerp),
         )
         .run();
 }

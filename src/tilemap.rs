@@ -3,7 +3,7 @@ use bevy::{
     render::mesh::{Indices, PrimitiveTopology},
 };
 
-use crate::{region_map::tile_index, console::Console};
+use crate::{console::Console, region_map::tile_index};
 
 const TILE_WIDTH: f32 = 32.0;
 const TILE_HEIGHT: f32 = 32.0;
@@ -46,10 +46,16 @@ impl TileType {
     pub fn interact(&self, console: &Console) {
         match self {
             TileType::FenceHorizontal | TileType::FenceVertical => {
-                console.write("There's a fence here. Maybe you can Jump over it?", Color::WHITE);
+                console.write(
+                    "There's a fence here. Maybe you can Jump over it?",
+                    Color::WHITE,
+                );
             }
             TileType::Bush => {
-                console.write("This bush is prickly, but you might be able to jump it.", Color::WHITE);
+                console.write(
+                    "This bush is prickly, but you might be able to jump it.",
+                    Color::WHITE,
+                );
             }
             _ => {}
         }
@@ -190,10 +196,7 @@ pub fn tile_lerp(
 
         let start = tile_to_screen(lerp.start.0, lerp.start.1);
         let end = tile_to_screen(lerp.end.0, lerp.end.1);
-        let step = (
-            (end.0 - start.0) / 8.0,
-            (end.1 - start.1) / 8.0,
-        );
+        let step = ((end.0 - start.0) / 8.0, (end.1 - start.1) / 8.0);
 
         trans.translation.x = start.0 + (step.0 * lerp.step as f32);
         trans.translation.y = start.1 + (step.1 * lerp.step as f32);

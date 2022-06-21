@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::assets::GameAssets;
+use bevy::prelude::*;
 use std::sync::Mutex;
 
 pub struct Console {
@@ -7,22 +7,29 @@ pub struct Console {
     dirty: Mutex<bool>,
 }
 
-const NUM_LINES : usize = 6;
+const NUM_LINES: usize = 6;
 
 impl Console {
     pub fn new() -> Self {
         let mut text = vec![(String::new(), Color::WHITE); NUM_LINES];
-        text[0] = ( "Welcome to Happy Chicken".to_string(), Color::YELLOW);
-        text[1] = ( "Use cursor keys to move, J to jump, SPACE to interact with the object you are facing.".to_string(), Color::CYAN);
-        Self { text: Mutex::new(text), dirty: Mutex::new(true) }
+        text[0] = ("Welcome to Happy Chicken".to_string(), Color::YELLOW);
+        text[1] = (
+            "Use cursor keys to move, J to jump, SPACE to interact with the object you are facing."
+                .to_string(),
+            Color::CYAN,
+        );
+        Self {
+            text: Mutex::new(text),
+            dirty: Mutex::new(true),
+        }
     }
 
     pub fn write<S: ToString>(&self, text: S, color: Color) {
         let mut text_lock = self.text.lock().unwrap();
         for i in (1..NUM_LINES).rev() {
-            text_lock[i] = text_lock[i-1].clone();
+            text_lock[i] = text_lock[i - 1].clone();
         }
-        text_lock[0] = ( text.to_string(), color );
+        text_lock[0] = (text.to_string(), color);
         let mut dirty_lock = self.dirty.lock().unwrap();
         *dirty_lock = true;
     }
@@ -41,12 +48,8 @@ impl Console {
 #[derive(Component)]
 pub struct ConsoleLine(usize);
 
-pub fn console_setup(
-    assets: &GameAssets,
-    commands: &mut Commands,
-    console: &Console,
-) {
-    const FONT_SIZE : f32 = 18.0;
+pub fn console_setup(assets: &GameAssets, commands: &mut Commands, console: &Console) {
+    const FONT_SIZE: f32 = 18.0;
     let text_lock = console.text.lock().unwrap();
     for (i, (line, color)) in text_lock.iter().enumerate() {
         commands
@@ -56,7 +59,7 @@ pub fn console_setup(
                     position_type: PositionType::Absolute,
                     position: Rect {
                         left: Val::Px(4.0),
-                        bottom: Val::Px(110.0 - (i as f32 * (FONT_SIZE+1.0))),
+                        bottom: Val::Px(110.0 - (i as f32 * (FONT_SIZE + 1.0))),
                         ..default()
                     },
                     ..default()
@@ -76,14 +79,12 @@ pub fn console_setup(
                     },
                 ),
                 ..default()
-            }).insert(ConsoleLine(i));
+            })
+            .insert(ConsoleLine(i));
     }
 }
 
-pub fn update_consoles(
-    mut query: Query<(&ConsoleLine, &mut Text)>,
-    console: Res<Console>,
-) {
+pub fn update_consoles(mut query: Query<(&ConsoleLine, &mut Text)>, console: Res<Console>) {
     if console.is_dirty() {
         let line_lock = console.text.lock().unwrap();
         for (line, mut text) in query.iter_mut() {
