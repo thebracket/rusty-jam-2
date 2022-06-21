@@ -17,6 +17,9 @@ pub enum TileType {
     Dirt,
     FenceHorizontal,
     FenceVertical,
+    Bush,
+    Flower,
+    Road,
 }
 
 impl TileType {
@@ -27,12 +30,15 @@ impl TileType {
             TileType::Dirt => 1,
             TileType::FenceHorizontal => 2,
             TileType::FenceVertical => 3,
+            TileType::Bush => 4,
+            TileType::Flower => 5,
+            TileType::Road => 6,
         }
     }
 
     pub fn can_player_enter(&self) -> bool {
         match self {
-            TileType::FenceHorizontal | TileType::FenceVertical => false,
+            TileType::FenceHorizontal | TileType::FenceVertical | TileType::Bush => false,
             _ => true,
         }
     }
@@ -41,6 +47,9 @@ impl TileType {
         match self {
             TileType::FenceHorizontal | TileType::FenceVertical => {
                 console.write("There's a fence here. Maybe you can Jump over it?", Color::WHITE);
+            }
+            TileType::Bush => {
+                console.write("This bush is prickly, but you might be able to jump it.", Color::WHITE);
             }
             _ => {}
         }
