@@ -123,8 +123,8 @@ fn build_farmer_tom_coup() -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
-    for x in player_start.0 - 5 .. player_start.0 + 5 {
-        for y in player_start.1 - 3 .. player_start.1 + 3 {
+    for x in player_start.0 - 5..player_start.0 + 5 {
+        for y in player_start.1 - 3..player_start.1 + 3 {
             tiles[tile_index(x, y)] = TileType::Dirt;
             if y == player_start.1 - 3 || y == player_start.1 + 2 {
                 features[tile_index(x, y)] = TileType::FenceHorizontal;
