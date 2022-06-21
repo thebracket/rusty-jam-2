@@ -1,8 +1,13 @@
+use crate::{
+    assets::GameAssets,
+    player::{Facing, Player},
+    region_map::RegionMap,
+    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+};
 use bevy::prelude::*;
-use crate::{assets::GameAssets, tilemap::{tile_to_screen, TilePosition, NUM_TILES_X, NUM_TILES_Y, LerpMove}, player::{Facing, Player}, region_map::{tile_index, RegionMap}};
 
 #[derive(Component)]
-pub struct Henry{
+pub struct Henry {
     facing: Facing,
 }
 
@@ -19,19 +24,22 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
         .insert(TilePosition {
             x: start.0,
             y: start.1,
-        }).insert(Henry{ facing: Facing::Right });
+        })
+        .insert(Henry {
+            facing: Facing::Right,
+        });
 }
 
 pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {
     let dx = f32::abs(pos1.x as f32 - pos2.x as f32);
     let dy = f32::abs(pos1.y as f32 - pos2.y as f32);
-    f32::sqrt((dx*dx) + (dy*dy))
+    f32::sqrt((dx * dx) + (dy * dy))
 }
 
 pub fn henry_ai(
     mut queries: ParamSet<(
-    Query<&TilePosition, With<Player>>,
-    Query<(Entity, &mut Henry, &TilePosition), Without<LerpMove>>
+        Query<&TilePosition, With<Player>>,
+        Query<(Entity, &mut Henry, &TilePosition), Without<LerpMove>>,
     )>,
     map: Res<RegionMap>,
     mut commands: Commands,
@@ -44,31 +52,31 @@ pub fn henry_ai(
             let y = henry_pos.y;
             let mut jumping = false;
 
-            let delta = if x < player_pos.x && map.can_player_enter(x+1, y) {
+            let delta = if x < player_pos.x && map.can_player_enter(x + 1, y) {
                 henry.facing = Facing::Right;
                 (1, 0)
-            } else if x > player_pos.x && map.can_player_enter(x-1, y) {
+            } else if x > player_pos.x && map.can_player_enter(x - 1, y) {
                 henry.facing = Facing::Left;
                 (-1, 0)
-            } else if y < player_pos.y && map.can_player_enter(x, y+1) {
+            } else if y < player_pos.y && map.can_player_enter(x, y + 1) {
                 henry.facing = Facing::Down;
                 (0, 1)
-            } else if y > player_pos.y && map.can_player_enter(x, y-1) {
+            } else if y > player_pos.y && map.can_player_enter(x, y - 1) {
                 henry.facing = Facing::Up;
                 (0, -1)
-            } else if x < player_pos.x && map.can_player_enter(x+2, y) {
+            } else if x < player_pos.x && map.can_player_enter(x + 2, y) {
                 henry.facing = Facing::Right;
                 jumping = true;
                 (2, 0)
-            } else if x > player_pos.x && map.can_player_enter(x-2, y) {
+            } else if x > player_pos.x && map.can_player_enter(x - 2, y) {
                 henry.facing = Facing::Left;
                 jumping = true;
                 (-2, 0)
-            } else if y < player_pos.y && map.can_player_enter(x, y+2) {
+            } else if y < player_pos.y && map.can_player_enter(x, y + 2) {
                 henry.facing = Facing::Down;
                 jumping = true;
                 (0, 2)
-            } else if y > player_pos.y && map.can_player_enter(x, y-2) {
+            } else if y > player_pos.y && map.can_player_enter(x, y - 2) {
                 henry.facing = Facing::Up;
                 jumping = true;
                 (0, -2)
@@ -93,7 +101,7 @@ pub fn henry_ai(
                             Facing::Right => Some(vec![8, 9, 10]),
                             Facing::Up => Some(vec![24, 25, 26]),
                             Facing::Down => Some(vec![72, 73, 74]),
-                        }
+                        },
                     });
                 }
             }

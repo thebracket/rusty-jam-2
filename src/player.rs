@@ -106,7 +106,7 @@ pub fn player_movement(
                         Facing::Right => Some(vec![0, 1, 2, 3, 4, 5]),
                         Facing::Up => Some(vec![6, 7, 8, 9, 10, 11]),
                         Facing::Down => Some(vec![18, 19, 20, 21, 22, 23]),
-                    }
+                    },
                 });
             }
         }

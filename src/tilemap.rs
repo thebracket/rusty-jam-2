@@ -189,7 +189,13 @@ pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Add
 }
 
 pub fn tile_lerp(
-    mut query: Query<(Entity, &mut LerpMove, &mut TilePosition, &mut Transform, &mut TextureAtlasSprite)>,
+    mut query: Query<(
+        Entity,
+        &mut LerpMove,
+        &mut TilePosition,
+        &mut Transform,
+        &mut TextureAtlasSprite,
+    )>,
     mut commands: Commands,
 ) {
     for (entity, mut lerp, mut pos, mut trans, mut sprite) in query.iter_mut() {

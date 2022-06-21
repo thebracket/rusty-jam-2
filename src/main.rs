@@ -1,16 +1,16 @@
 use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
-use henry::{spawn_henry, henry_ai};
+use henry::{henry_ai, spawn_henry};
 use player::{player_movement, spawn_player};
 use region_map::{MapToBuild, RegionMap};
 use tilemap::{tile_lerp, tile_location_added};
 mod assets;
 mod console;
+mod henry;
 mod player;
 mod region_map;
 mod tilemap;
-mod henry;
 
 fn main() {
     App::new()

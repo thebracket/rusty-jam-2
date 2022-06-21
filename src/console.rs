@@ -19,8 +19,9 @@ impl Console {
             Color::CYAN,
         );
         text[2] = (
-            "Henry the dog is here to help you find the missing eggs. He promises not to eat them.".to_string(),
-            Color::YELLOW
+            "Henry the dog is here to help you find the missing eggs. He promises not to eat them."
+                .to_string(),
+            Color::GREEN,
         );
         Self {
             text: Mutex::new(text),
