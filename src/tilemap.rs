@@ -181,7 +181,7 @@ pub struct LerpMove {
     pub animate: Option<Vec<usize>>,
 }
 
-pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Added<TilePosition>>) {
+pub fn tile_location_added(mut query: Query<(&TilePosition, &mut Transform), Or<(Added<TilePosition>, Changed<TilePosition>)>>) {
     query.for_each_mut(|(tile_pos, mut trans)| {
         let tts = tile_to_screen(tile_pos.x, tile_pos.y);
         trans.translation = Vec3::new(tts.0, tts.1, trans.translation.z);

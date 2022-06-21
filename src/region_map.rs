@@ -1,13 +1,70 @@
 use crate::{
     assets::GameAssets,
     console::Console,
-    tilemap::{TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y},
+    player::{Player, Facing},
+    tilemap::{TileMapLayer, TilePosition, TileType, NUM_TILES_X, NUM_TILES_Y, LerpMove}, henry::Henry,
 };
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bracket_random::prelude::RandomNumberGenerator;
 
 #[derive(Component)]
-struct MapElement;
+pub struct MapElement;
+
+pub fn map_exits(
+    mut map: ResMut<RegionMap>,
+    mut queries: ParamSet<(
+        Query<&TilePosition, (With<Player>, Changed<TilePosition>)>,
+        Query<Entity, With<MapElement>>,
+        Query<(&Player, &mut TilePosition)>,
+        Query<(Entity, &mut TilePosition), With<Henry>>,
+    )>,
+    mut commands: Commands,
+    assets: Res<GameAssets>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    let mut transition = None;
+    for player_pos in queries.p0().iter() {
+        let player_idx = tile_index(player_pos.x, player_pos.y);
+        for (exit, new_map) in map.exits.iter() {
+            if *exit == player_idx {
+                transition = Some(*new_map);
+            }
+        }
+    }
+
+    if let Some(new_map) = transition {
+        map.transition_to(new_map, &mut commands, &queries.p1(), &assets, &mut meshes);
+
+        // Adjust player position
+        let mut player_pos = (0,0);
+        for (player, mut ppos) in queries.p2().iter_mut() {
+            player_pos = (ppos.x, ppos.y);
+            match player.facing {
+                Facing::Up => {
+                    ppos.y = NUM_TILES_Y as i32 -1;
+                    player_pos.1 = NUM_TILES_Y as i32 -1;
+                }
+                Facing::Down => {
+                    ppos.y = 0;
+                    player_pos.1 = 0;
+                }
+                Facing::Left => {
+                    ppos.x = NUM_TILES_X as i32 - 1;
+                    player_pos.0 = NUM_TILES_X as i32 - 1;
+                }
+                Facing::Right => {
+                    ppos.x = 0;
+                    player_pos.0 = 0;
+                }
+            }
+        }
+        for (henry, mut henry_pos) in queries.p3().iter_mut() {
+            henry_pos.x = player_pos.0 -1;
+            henry_pos.y = player_pos.1;
+            commands.entity(henry).remove::<LerpMove>();
+        }
+    }
+}
 
 pub struct RegionMap {
     pub name: String,
@@ -16,6 +73,7 @@ pub struct RegionMap {
     pub mesh: Option<Handle<Mesh>>,
     pub player_start: (i32, i32),
     pub mesh2: Option<Handle<Mesh>>,
+    pub exits: Vec<(usize, usize)>,
 }
 
 impl RegionMap {
@@ -27,6 +85,7 @@ impl RegionMap {
             base_tiles: map.tiles,
             features: map.features,
             player_start: map.player_start,
+            exits: map.exits,
             mesh: None,
             mesh2: None,
         }
@@ -94,6 +153,32 @@ impl RegionMap {
             .insert(MapElement);
     }
 
+    fn transition_to(
+        &mut self,
+        new_map: usize,
+        commands: &mut Commands,
+        elements: &Query<Entity, With<MapElement>>,
+        assets: &GameAssets,
+        meshes: &mut Assets<Mesh>,
+    ) {
+        // Remove the old map display
+        elements.for_each(|e| commands.entity(e).despawn());
+
+        // Build a map
+        let to_build = match new_map {
+            1 => MapToBuild::FarmHouse,
+            _ => MapToBuild::FarmerTomCoup,
+        };
+        let new_data = builder(to_build);
+        self.base_tiles = new_data.tiles;
+        self.exits = new_data.exits;
+        self.features = new_data.features;
+        self.name = new_data.name;
+
+        // Spawn the new one
+        self.spawn(assets, meshes, commands);
+    }
+
     pub fn can_player_enter(&self, x: i32, y: i32) -> bool {
         let idx = tile_index(x, y);
         self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter()
@@ -108,6 +193,7 @@ impl RegionMap {
 
 pub enum MapToBuild {
     FarmerTomCoup,
+    FarmHouse,
 }
 
 struct MapTransfer {
@@ -115,11 +201,13 @@ struct MapTransfer {
     features: Vec<TileType>,
     name: String,
     player_start: (i32, i32),
+    exits: Vec<(usize, usize)>,
 }
 
 fn builder(map: MapToBuild) -> MapTransfer {
     match map {
         MapToBuild::FarmerTomCoup => build_farmer_tom_coup(),
+        MapToBuild::FarmHouse => build_toms_house(),
     }
 }
 
@@ -132,6 +220,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
+    let mut exits = Vec::new();
 
     // Coup
     for x in player_start.0 - 5..player_start.0 + 5 {
@@ -167,6 +256,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
         }
     }
 
+    // Add some pretty flowers
     tiles.iter_mut().enumerate().for_each(|(idx, t)| {
         if features[idx] == TileType::None && *t == TileType::Grass {
             if rng.range(1, 10) < 2 {
@@ -175,10 +265,14 @@ fn build_farmer_tom_coup() -> MapTransfer {
         }
     });
 
+    // Add a road
     for y in 0..player_start.1 - 3 {
         for x in player_start.0 - 1..player_start.0 + 2 {
             tiles[tile_index(x, y)] = TileType::Road;
             features[tile_index(x, y)] = TileType::None;
+            if y == 0 {
+                exits.push((tile_index(x, y), 1));
+            }
         }
     }
 
@@ -187,5 +281,56 @@ fn build_farmer_tom_coup() -> MapTransfer {
         features,
         name: "Farmer Tom's Coup".to_string(),
         player_start,
+        exits,
+    }
+}
+
+fn build_toms_house() -> MapTransfer {
+    let mut rng = RandomNumberGenerator::new();
+    let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
+    let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
+    let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
+    let mut exits = Vec::new();
+
+    // Boundaries
+    for x in 0..NUM_TILES_X as i32 {
+        features[tile_index(x, 0)] = TileType::Bush;
+        features[tile_index(x, NUM_TILES_Y as i32 - 1)] = TileType::Bush;
+        for y in 0..rng.range(1, 5) {
+            features[tile_index(x, NUM_TILES_Y as i32 - 1 - y)] = TileType::Bush;
+        }
+        for y in 0..rng.range(1, 5) {
+            features[tile_index(x, y)] = TileType::Bush;
+        }
+    }
+    for y in 0..NUM_TILES_Y as i32 {
+        features[tile_index(0, y)] = TileType::Bush;
+        features[tile_index(NUM_TILES_X as i32 - 1, y)] = TileType::Bush;
+        for x in 0..rng.range(1, 5) {
+            features[tile_index(x, y)] = TileType::Bush;
+        }
+        for x in 0..rng.range(1, 5) {
+            features[tile_index(NUM_TILES_X as i32 - 1 - x, y)] = TileType::Bush;
+        }
+    }
+
+    // Add a road
+    let half_width = NUM_TILES_X as i32 / 2;
+    for y in NUM_TILES_Y as i32 -5..NUM_TILES_Y as i32 {
+        for x in half_width - 1.. half_width + 2 {
+            tiles[tile_index(x, y)] = TileType::Road;
+            features[tile_index(x, y)] = TileType::None;
+            if y == NUM_TILES_Y as i32 -1 {
+                exits.push((tile_index(x, y), 0));
+            }
+        }
+    }
+
+    MapTransfer {
+        tiles,
+        features,
+        name: "Farmer Tom's House".to_string(),
+        player_start,
+        exits,
     }
 }

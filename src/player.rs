@@ -6,6 +6,7 @@ use crate::{
 };
 use bevy::prelude::*;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Facing {
     Left,
     Right,
@@ -15,7 +16,7 @@ pub enum Facing {
 
 #[derive(Component)]
 pub struct Player {
-    facing: Facing,
+    pub facing: Facing,
 }
 
 pub fn spawn_player(commands: &mut Commands, assets: &GameAssets, start: (i32, i32)) {

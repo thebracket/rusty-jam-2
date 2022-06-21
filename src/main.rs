@@ -3,7 +3,7 @@ use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
 use henry::{henry_ai, spawn_henry};
 use player::{player_movement, spawn_player};
-use region_map::{MapToBuild, RegionMap};
+use region_map::{MapToBuild, RegionMap, map_exits};
 use tilemap::{tile_lerp, tile_location_added};
 mod assets;
 mod console;
@@ -32,6 +32,8 @@ fn main() {
                 .with_system(tile_lerp)
                 .with_system(henry_ai),
         )
+        .add_stage_after(CoreStage::Update, "migration", SystemStage::parallel())
+        .add_system(map_exits)
         .run();
 }
 
