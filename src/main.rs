@@ -1,5 +1,6 @@
 use assets::GameAssets;
 use bevy::{prelude::*, core::FixedTimestep};
+use console::{Console, console_setup, update_consoles};
 use player::{player_movement, spawn_player};
 use region_map::{MapToBuild, RegionMap};
 use tilemap::{tile_location_added, tile_lerp};
@@ -7,6 +8,7 @@ mod assets;
 mod player;
 mod region_map;
 mod tilemap;
+mod console;
 
 fn main() {
     App::new()
@@ -21,6 +23,7 @@ fn main() {
         .add_startup_system(setup)
         .add_system(player_movement)
         .add_system(tile_location_added)
+        .add_system(update_consoles)
         .add_system_set(
             SystemSet::new().with_run_criteria(FixedTimestep::step(1.0 / 30.0))
             .with_system(tile_lerp)
@@ -41,6 +44,8 @@ fn setup(
 
     // Setup assets
     let assets = GameAssets::new(&asset_server, &mut materials, &mut texture_atlases);
+    let console = Console::new();
+    console_setup(&assets, &mut commands, &console);
 
     // Spawn a map
     let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup);
@@ -52,4 +57,5 @@ fn setup(
     // Resources
     commands.insert_resource(region_map);
     commands.insert_resource(assets);
+    commands.insert_resource(console);
 }

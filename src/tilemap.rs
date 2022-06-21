@@ -3,7 +3,7 @@ use bevy::{
     render::mesh::{Indices, PrimitiveTopology},
 };
 
-use crate::region_map::tile_index;
+use crate::{region_map::tile_index, console::Console};
 
 const TILE_WIDTH: f32 = 32.0;
 const TILE_HEIGHT: f32 = 32.0;
@@ -34,6 +34,15 @@ impl TileType {
         match self {
             TileType::FenceHorizontal | TileType::FenceVertical => false,
             _ => true,
+        }
+    }
+
+    pub fn interact(&self, console: &Console) {
+        match self {
+            TileType::FenceHorizontal | TileType::FenceVertical => {
+                console.write("There's a fence here. Maybe you can Jump over it?", Color::WHITE);
+            }
+            _ => {}
         }
     }
 }

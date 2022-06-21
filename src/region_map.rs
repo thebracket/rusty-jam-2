@@ -1,6 +1,6 @@
 use crate::{
     assets::GameAssets,
-    tilemap::{TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y},
+    tilemap::{TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y}, console::Console,
 };
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
@@ -95,6 +95,12 @@ impl RegionMap {
     pub fn can_player_enter(&self, x: i32, y: i32) -> bool {
         let idx = tile_index(x, y);
         self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter()
+    }
+
+    pub fn interact(&self, x: i32, y: i32, console: &Console) {
+        let idx = tile_index(x, y);
+        self.base_tiles[idx].interact(console);
+        self.features[idx].interact(console);
     }
 }
 

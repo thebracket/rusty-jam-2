@@ -1,7 +1,7 @@
 use crate::{
     assets::GameAssets,
     region_map::RegionMap,
-    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, console::Console,
 };
 use bevy::prelude::*;
 
@@ -43,6 +43,7 @@ pub fn player_movement(
     keyboard: Res<Input<KeyCode>>,
     map: Res<RegionMap>,
     mut commands: Commands,
+    console: Res<Console>,
 ) {
     for (entity, mut player, tile_pos, mut sprite) in player.iter_mut() {
         let mut jumping = false;
@@ -69,6 +70,17 @@ pub fn player_movement(
         } else {
             (0, 0)
         };
+
+        if keyboard.just_pressed(KeyCode::Space) {
+            let mut target = (tile_pos.x, tile_pos.y);
+            match player.facing {
+                Facing::Left => target.0 -= 1,
+                Facing::Right => target.0 -= 1,
+                Facing::Up => target.1 -= 1,
+                Facing::Down => target.1 += 1,
+            }
+            map.interact(target.0, target.1, &console);
+        }
 
         if delta != (0, 0) {
             let destination = (
