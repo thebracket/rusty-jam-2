@@ -75,7 +75,7 @@ pub fn player_movement(
             let mut target = (tile_pos.x, tile_pos.y);
             match player.facing {
                 Facing::Left => target.0 -= 1,
-                Facing::Right => target.0 -= 1,
+                Facing::Right => target.0 += 1,
                 Facing::Up => target.1 -= 1,
                 Facing::Down => target.1 += 1,
             }
