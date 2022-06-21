@@ -337,6 +337,12 @@ fn build_toms_house() -> MapTransfer {
     // Add a haycart
     spawn_big_feature(10, 5, TileType::HayCart, &mut features);
 
+    // Add a barn
+    spawn_big_feature(11, 7, TileType::Barn, &mut features);
+
+    // Add a rocky outcropping
+    spawn_big_feature(0, 11, TileType::LeftButte, &mut features);
+
     MapTransfer {
         tiles,
         features,
@@ -349,6 +355,8 @@ fn build_toms_house() -> MapTransfer {
 fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType]) {
     let (width, height) = match feature {
         TileType::HayCart => (3, 2),
+        TileType::Barn => (2, 3),
+        TileType::LeftButte => (2, 7),
         _ => (0,0)
     };
 

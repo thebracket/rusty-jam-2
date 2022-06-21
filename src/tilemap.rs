@@ -22,6 +22,8 @@ pub enum TileType {
     Road,
     HayCart,
     ReferTo(usize),
+    Barn,
+    LeftButte,
 }
 
 impl TileType {
@@ -50,13 +52,20 @@ impl TileType {
     fn extra_big(&self) -> Option<(i32, i32, Vec<usize>)> {
         match self {
             TileType::HayCart => Some((3, 2, vec![16, 17, 18, 32, 33, 34])),
+            TileType::Barn => Some((2, 3, vec![48, 49, 64, 65, 80, 81])),
+            TileType::LeftButte => Some((2, 7, vec![112, 113, 128, 129, 144, 145, 160, 161, 176, 177, 192, 193, 208, 209])),
             _ => None,
         }
     }
 
     pub fn can_player_enter(&self) -> bool {
         match self {
-            TileType::FenceHorizontal | TileType::FenceVertical | TileType::Bush | TileType::HayCart => false,
+            TileType::FenceHorizontal
+            | TileType::FenceVertical
+            | TileType::Bush
+            | TileType::HayCart
+            | TileType::Barn => false,
+            | TileType::LeftButte => false,
             _ => true,
         }
     }
