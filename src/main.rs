@@ -1,6 +1,7 @@
 use actors::{chicken_ai, henry_ai, player_movement, spawn_henry, spawn_player, farmer_ai};
 use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
+use combat::{setup_health_hud, update_health_hud};
 use console::{console_setup, update_consoles, Console};
 use fov::update_field_of_view;
 use interactions::player_interaction;
@@ -13,6 +14,7 @@ mod fov;
 mod interactions;
 mod maps;
 mod random;
+mod combat;
 
 fn main() {
     App::new()
@@ -31,6 +33,7 @@ fn main() {
         .add_system(update_consoles)
         .add_system(chicken_ai)
         .add_system(farmer_ai)
+        .add_system(update_health_hud)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
@@ -71,6 +74,9 @@ fn setup(
     let mut henry_start = region_map.player_start;
     henry_start.0 -= 1;
     spawn_henry(&mut commands, &assets, henry_start);
+
+    // HUD stuff
+    setup_health_hud(&mut commands, &assets);
 
     // Resources
     commands.insert_resource(region_map);

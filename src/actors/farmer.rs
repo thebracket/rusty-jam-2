@@ -5,7 +5,7 @@ use crate::{
     assets::GameAssets,
     fov::FieldOfView,
     interactions::Interaction,
-    maps::{tile_to_screen, MapElement, TilePosition, RegionMap, LerpMove, tile_index, NUM_TILES_X, NUM_TILES_Y}, console::Console,
+    maps::{tile_to_screen, MapElement, TilePosition, RegionMap, LerpMove, tile_index, NUM_TILES_X, NUM_TILES_Y}, console::Console, combat::Health,
 };
 
 use super::Player;
@@ -33,7 +33,8 @@ pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands
             ],
         })
         .insert(FieldOfView::new(8))
-        .insert(MapElement); // Don't persist chickens between levels
+        .insert(MapElement)
+        .insert(Health{current: 3, max: 3}); // Don't persist chickens between levels
 }
 
 pub fn farmer_ai(

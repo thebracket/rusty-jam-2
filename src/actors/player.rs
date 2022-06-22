@@ -1,7 +1,7 @@
 use crate::{
     assets::GameAssets,
     maps::RegionMap,
-    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, combat::Health,
 };
 use bevy::prelude::*;
 
@@ -33,7 +33,8 @@ pub fn spawn_player(commands: &mut Commands, assets: &GameAssets, start: (i32, i
         .insert(TilePosition {
             x: start.0,
             y: start.1,
-        });
+        })
+        .insert(Health{current: 10, max: 10});
 }
 
 pub fn player_movement(

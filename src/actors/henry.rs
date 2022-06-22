@@ -2,7 +2,7 @@ use crate::{
     assets::GameAssets,
     fov::FieldOfView,
     interactions::Interaction,
-    maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y}, combat::Health,
 };
 use bevy::prelude::*;
 
@@ -41,7 +41,8 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
             ],
         })
         .insert(FieldOfView::new(8))
-        .insert(ScaresChickens);
+        .insert(ScaresChickens)
+        .insert(Health{current: 10, max: 10});
 }
 
 pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {

@@ -6,7 +6,7 @@ use crate::{
         tile_index, tile_to_screen, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X,
         NUM_TILES_Y,
     },
-    random::Rng,
+    random::Rng, combat::Health,
 };
 use bevy::prelude::*;
 use bracket_pathfinding::prelude::{DijkstraMap, Point};
@@ -36,7 +36,8 @@ pub fn spawn_chicken(x: i32, y: i32, assets: &GameAssets, commands: &mut Command
             )],
         })
         .insert(FieldOfView::new(3))
-        .insert(MapElement); // Don't persist chickens between levels
+        .insert(MapElement)
+        .insert(Health{current: 1, max: 1}); // Don't persist chickens between levels
 }
 
 pub fn chicken_ai(
