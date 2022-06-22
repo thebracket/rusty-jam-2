@@ -3,18 +3,16 @@ use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
 use henry::{henry_ai, spawn_henry};
 use interactions::player_interaction;
+use maps::{tile_location_added, tile_lerp, map_exits, RegionMap, MapToBuild};
 use player::{player_movement, spawn_player};
 use random::Rng;
-use region_map::{MapToBuild, RegionMap, map_exits};
-use tilemap::{tile_lerp, tile_location_added};
 mod assets;
 mod console;
 mod henry;
 mod player;
-mod region_map;
-mod tilemap;
 mod interactions;
 mod random;
+mod maps;
 
 fn main() {
     App::new()

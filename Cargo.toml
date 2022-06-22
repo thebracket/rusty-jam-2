@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 bevy = "0.7"
 bracket-random = "0.8"
+bracket-pathfinding = { version = "0.8", default-features = false }

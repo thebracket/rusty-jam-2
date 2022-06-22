@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{player::{Player, Facing}, tilemap::{TilePosition, LerpMove}, region_map::RegionMap, console::Console, random::Rng};
+use crate::{player::{Player, Facing}, maps::{TilePosition, LerpMove, RegionMap}, console::Console, random::Rng};
 
 #[derive(Component)]
 pub struct Interaction {

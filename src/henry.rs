@@ -1,8 +1,7 @@
 use crate::{
     assets::GameAssets,
     player::{Facing, Player},
-    region_map::RegionMap,
-    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, interactions::Interaction,
+    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y, RegionMap}, interactions::Interaction,
 };
 use bevy::prelude::*;
 
