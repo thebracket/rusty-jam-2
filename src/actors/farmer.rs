@@ -3,7 +3,7 @@ use bracket_pathfinding::prelude::{DijkstraMap, Point};
 
 use crate::{
     assets::GameAssets,
-    combat::Health,
+    combat::{Health, LerpAttack},
     console::Console,
     fov::FieldOfView,
     interactions::Interaction,
@@ -16,7 +16,7 @@ use crate::{
 use super::{Player, Tasty};
 
 #[derive(Component)]
-pub struct Farmer;
+pub struct Farmer(bool);
 
 pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands) {
     let pos = tile_to_screen(x, y);
@@ -28,7 +28,7 @@ pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands
             ..default()
         })
         .insert(TilePosition { x, y })
-        .insert(Farmer)
+        .insert(Farmer(false))
         .insert(Interaction {
             output: vec![
                 (
@@ -53,13 +53,13 @@ pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands
 
 pub fn farmer_ai(
     map: Res<RegionMap>,
-    mut ai_query: Query<(Entity, &TilePosition, &FieldOfView), (With<Farmer>, Without<LerpMove>)>,
+    mut ai_query: Query<(Entity, &mut Farmer, &TilePosition, &FieldOfView), (Without<LerpMove>, Without<LerpAttack>)>,
     scary_query: Query<&TilePosition, With<Player>>,
     mut commands: Commands,
     console: Res<Console>,
 ) {
     let mut delta = None;
-    for (entity, pos, fov) in ai_query.iter_mut() {
+    for (entity, mut farmer, pos, fov) in ai_query.iter_mut() {
         // Check for things to run away from
         if !fov.fov_set.is_empty() {
             let mut starts = Vec::new();
@@ -83,7 +83,10 @@ pub fn farmer_ai(
 
         if let Some(delta) = delta {
             if map.can_player_enter(pos.x + delta.0, pos.y + delta.1) {
-                console.write("The farmer screams about scary giant chickens", Color::PINK);
+                if !farmer.0 {
+                    console.write("The farmer screams about scary giant chickens", Color::PINK);
+                    farmer.0 = true;
+                }
                 commands.entity(entity).insert(LerpMove {
                     jumping: false,
                     start: (pos.x, pos.y),

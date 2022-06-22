@@ -87,6 +87,7 @@ fn setup(
 
     // Spawn a map
     let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
+    //let mut region_map = RegionMap::new(MapToBuild::FarmHouse, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player
