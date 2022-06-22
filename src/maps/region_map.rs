@@ -1,11 +1,7 @@
-use crate::{
-    assets::GameAssets,
-    console::Console,
-    random::Rng, normal_chicken::spawn_chicken,
-};
+use super::{builder, tile_index, MapToBuild, TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y};
+use crate::{actors::{spawn_chicken, spawn_farmer}, assets::GameAssets, console::Console, random::Rng};
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bracket_pathfinding::prelude::{Algorithm2D, Point, BaseMap, SmallVec, DistanceAlg};
-use super::{TileType, TileMapLayer, tile_index, builder, MapToBuild, NUM_TILES_X, NUM_TILES_Y};
+use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, DistanceAlg, Point, SmallVec};
 
 #[derive(Component)]
 pub struct MapElement;
@@ -33,7 +29,7 @@ impl RegionMap {
             exits: map.exits,
             mesh: None,
             mesh2: None,
-            spawns: map.spawns
+            spawns: map.spawns,
         }
     }
 
@@ -46,6 +42,7 @@ impl RegionMap {
         for (tag, x, y) in self.spawns.iter() {
             match tag.as_str() {
                 "Chicken" => spawn_chicken(*x, *y, assets, commands),
+                "Farmer" => spawn_farmer(*x, *y, assets, commands),
                 _ => println!("Warning: Don't know how to spawn a [{tag}]"),
             }
         }
@@ -128,6 +125,7 @@ impl RegionMap {
         self.exits = new_data.exits;
         self.features = new_data.features;
         self.name = new_data.name;
+        self.spawns = new_data.spawns;
 
         // Spawn the new one
         self.spawn(assets, meshes, commands);
@@ -140,11 +138,16 @@ impl RegionMap {
         let idx = tile_index(x, y);
         let mut can_go = true;
         if let TileType::ReferTo(refer_idx) = self.base_tiles[idx] {
-            if !self.base_tiles[refer_idx].can_player_enter() { can_go = false; }
+            if !self.base_tiles[refer_idx].can_player_enter() {
+                can_go = false;
+            }
         } else if let TileType::ReferTo(refer_idx) = self.features[idx] {
-            if !self.features[refer_idx].can_player_enter() { can_go = false; }
+            if !self.features[refer_idx].can_player_enter() {
+                can_go = false;
+            }
         } else {
-            can_go = self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter();
+            can_go =
+                self.base_tiles[idx].can_player_enter() && self.features[idx].can_player_enter();
         }
         can_go
     }

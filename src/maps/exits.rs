@@ -1,6 +1,10 @@
+use super::{tile_index, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y};
+use crate::{
+    actors::{Facing, Henry, Player},
+    assets::GameAssets,
+    random::Rng,
+};
 use bevy::prelude::*;
-use crate::{player::{Player, Facing}, henry::Henry, assets::GameAssets, random::Rng};
-use super::{RegionMap, TilePosition, MapElement, tile_index, NUM_TILES_Y, NUM_TILES_X, LerpMove};
 
 pub fn map_exits(
     mut map: ResMut<RegionMap>,
@@ -26,16 +30,23 @@ pub fn map_exits(
     }
 
     if let Some(new_map) = transition {
-        map.transition_to(new_map, &mut commands, &queries.p1(), &assets, &mut meshes, &rng);
+        map.transition_to(
+            new_map,
+            &mut commands,
+            &queries.p1(),
+            &assets,
+            &mut meshes,
+            &rng,
+        );
 
         // Adjust player position
-        let mut player_pos = (0,0);
+        let mut player_pos = (0, 0);
         for (player, mut ppos) in queries.p2().iter_mut() {
             player_pos = (ppos.x, ppos.y);
             match player.facing {
                 Facing::Up => {
-                    ppos.y = NUM_TILES_Y as i32 -1;
-                    player_pos.1 = NUM_TILES_Y as i32 -1;
+                    ppos.y = NUM_TILES_Y as i32 - 1;
+                    player_pos.1 = NUM_TILES_Y as i32 - 1;
                 }
                 Facing::Down => {
                     ppos.y = 0;
@@ -52,7 +63,7 @@ pub fn map_exits(
             }
         }
         for (henry, mut henry_pos) in queries.p3().iter_mut() {
-            henry_pos.x = player_pos.0 -1;
+            henry_pos.x = player_pos.0 - 1;
             henry_pos.y = player_pos.1;
             commands.entity(henry).remove::<LerpMove>();
         }

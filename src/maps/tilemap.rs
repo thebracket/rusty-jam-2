@@ -1,8 +1,8 @@
+use super::{tile_index, TileType};
 use bevy::{
     prelude::*,
     render::mesh::{Indices, PrimitiveTopology},
 };
-use super::{tile_index, TileType};
 
 const TILE_WIDTH: f32 = 32.0;
 const TILE_HEIGHT: f32 = 32.0;

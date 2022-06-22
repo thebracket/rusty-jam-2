@@ -1,5 +1,8 @@
-use crate::{random::Rng, maps::{TileType, NUM_TILES_X, NUM_TILES_Y, tile_index}};
-use super::{MapTransfer, spawn_big_feature};
+use super::{spawn_big_feature, MapTransfer};
+use crate::{
+    maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
+    random::Rng,
+};
 
 pub fn build_toms_house(rng: &Rng) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
@@ -32,11 +35,11 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
 
     // Add a road
     let half_width = NUM_TILES_X as i32 / 2;
-    for y in NUM_TILES_Y as i32 -5..NUM_TILES_Y as i32 {
-        for x in half_width - 1.. half_width + 2 {
+    for y in NUM_TILES_Y as i32 - 5..NUM_TILES_Y as i32 {
+        for x in half_width - 1..half_width + 2 {
             tiles[tile_index(x, y)] = TileType::Road;
             features[tile_index(x, y)] = TileType::None;
-            if y == NUM_TILES_Y as i32 -1 {
+            if y == NUM_TILES_Y as i32 - 1 {
                 exits.push((tile_index(x, y), 0));
             }
         }
@@ -85,6 +88,9 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
             }
         }
     });
+
+    // Add the farmer
+    spawns.push(("Farmer".to_string(), 18, 7));
 
     MapTransfer {
         tiles,

@@ -1,5 +1,5 @@
+use super::{tile_to_screen, TilePosition};
 use bevy::prelude::*;
-use super::{TilePosition, tile_to_screen};
 
 #[derive(Component)]
 pub struct LerpMove {
@@ -28,7 +28,7 @@ pub fn tile_lerp(
         &mut LerpMove,
         &mut TilePosition,
         &mut Transform,
-        &mut TextureAtlasSprite,
+        Option<&mut TextureAtlasSprite>,
     )>,
     mut commands: Commands,
 ) {
@@ -44,7 +44,9 @@ pub fn tile_lerp(
 
         if let Some(animate) = &lerp.animate {
             let frame = lerp.step % animate.len() as u32;
-            sprite.index = animate[frame as usize];
+            if let Some(sprite) = &mut sprite {
+                sprite.index = animate[frame as usize];
+            }
         }
 
         if lerp.jumping {
@@ -63,7 +65,9 @@ pub fn tile_lerp(
         // Finish the move
         if lerp.step > 8 {
             if let Some(animate) = &lerp.animate {
-                sprite.index = animate[0];
+                if let Some(sprite) = &mut sprite {
+                    sprite.index = animate[0];
+                }
             }
             pos.x = lerp.end.0;
             pos.y = lerp.end.1;

@@ -4,12 +4,14 @@ use std::sync::Mutex;
 // Note: it's Mutex locked so it doesn't have to be ResMut
 
 pub struct Rng {
-    rng: Mutex<RandomNumberGenerator>
+    rng: Mutex<RandomNumberGenerator>,
 }
 
 impl Rng {
     pub fn new() -> Self {
-        Self { rng: Mutex::new(RandomNumberGenerator::new()) }
+        Self {
+            rng: Mutex::new(RandomNumberGenerator::new()),
+        }
     }
 
     pub fn range(&self, start: i32, end: i32) -> i32 {

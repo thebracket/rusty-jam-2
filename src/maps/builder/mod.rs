@@ -1,5 +1,5 @@
+use super::{tile_index, TileType};
 use crate::random::Rng;
-use super::{TileType, tile_index};
 mod coup;
 mod tom_house;
 
@@ -29,7 +29,7 @@ fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType
         TileType::HayCart => (3, 2),
         TileType::Barn => (2, 3),
         TileType::LeftButte => (2, 7),
-        _ => (0,0)
+        _ => (0, 0),
     };
 
     if width == 0 || height == 0 {
@@ -39,7 +39,7 @@ fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType
     let base_idx = tile_index(x, y);
     for tx in 0..width {
         for ty in 0..height {
-            let idx = tile_index(x+tx, y+ty);
+            let idx = tile_index(x + tx, y + ty);
             features[idx] = TileType::ReferTo(base_idx);
         }
     }

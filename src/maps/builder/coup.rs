@@ -1,5 +1,8 @@
-use crate::{random::Rng, maps::{TileType, NUM_TILES_X, NUM_TILES_Y, tile_index}};
 use super::MapTransfer;
+use crate::{
+    maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
+    random::Rng,
+};
 
 pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
@@ -21,7 +24,7 @@ pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
     }
 
     // Cauldron
-    features[tile_index(player_start.0-3, player_start.1)] = TileType::Cauldron;
+    features[tile_index(player_start.0 - 3, player_start.1)] = TileType::Cauldron;
 
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {

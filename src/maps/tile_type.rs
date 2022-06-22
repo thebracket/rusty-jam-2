@@ -1,5 +1,5 @@
-use bevy::prelude::Color;
 use crate::console::Console;
+use bevy::prelude::Color;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum TileType {
@@ -64,7 +64,13 @@ impl TileType {
         match self {
             TileType::HayCart => Some((3, 2, vec![16, 17, 18, 32, 33, 34])),
             TileType::Barn => Some((2, 3, vec![48, 49, 64, 65, 80, 81])),
-            TileType::LeftButte => Some((2, 7, vec![112, 113, 128, 129, 144, 145, 160, 161, 176, 177, 192, 193, 208, 209])),
+            TileType::LeftButte => Some((
+                2,
+                7,
+                vec![
+                    112, 113, 128, 129, 144, 145, 160, 161, 176, 177, 192, 193, 208, 209,
+                ],
+            )),
             _ => None,
         }
     }
@@ -76,7 +82,7 @@ impl TileType {
             | TileType::Bush
             | TileType::HayCart
             | TileType::Barn => false,
-            | TileType::LeftButte => false,
+            TileType::LeftButte => false,
             _ => true,
         }
     }
@@ -96,7 +102,10 @@ impl TileType {
                 );
             }
             TileType::Cauldron => {
-                console.write("I guess that explains why you're a 6 foot tall chicken!", Color::YELLOW);
+                console.write(
+                    "I guess that explains why you're a 6 foot tall chicken!",
+                    Color::YELLOW,
+                );
                 console.write("Farmer Tom's Magic Miracle Grow", Color::YELLOW);
             }
             _ => {}

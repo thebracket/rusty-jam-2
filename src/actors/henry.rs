@@ -1,9 +1,12 @@
 use crate::{
     assets::GameAssets,
-    player::{Facing, Player},
-    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y, RegionMap}, interactions::Interaction, fov::FieldOfView, normal_chicken::ScaresChickens,
+    fov::FieldOfView,
+    interactions::Interaction,
+    maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::prelude::*;
+
+use super::{Facing, Player, ScaresChickens};
 
 #[derive(Component)]
 pub struct Henry {
@@ -27,12 +30,15 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
         .insert(Henry {
             facing: Facing::Right,
         })
-        .insert(Interaction{
+        .insert(Interaction {
             output: vec![
                 ("Henry wags his tail".to_string(), Color::YELLOW),
                 ("Henry slurps your face".to_string(), Color::YELLOW),
-                ("Henry encourages you to find the golden egg and win the game".to_string(), Color::YELLOW),
-            ]
+                (
+                    "Henry encourages you to find the golden egg and win the game".to_string(),
+                    Color::YELLOW,
+                ),
+            ],
         })
         .insert(FieldOfView::new(8))
         .insert(ScaresChickens);

@@ -1,5 +1,10 @@
+use crate::{
+    actors::{Facing, Player},
+    console::Console,
+    maps::{LerpMove, RegionMap, TilePosition},
+    random::Rng,
+};
 use bevy::prelude::*;
-use crate::{player::{Player, Facing}, maps::{TilePosition, LerpMove, RegionMap}, console::Console, random::Rng};
 
 #[derive(Component)]
 pub struct Interaction {
@@ -7,17 +12,14 @@ pub struct Interaction {
 }
 
 pub fn player_interaction(
-    player: Query<
-        (&Player, &TilePosition),
-        Without<LerpMove>,
-    >,
+    player: Query<(&Player, &TilePosition), Without<LerpMove>>,
     interactions: Query<(&Interaction, &TilePosition), Without<LerpMove>>,
     keyboard: Res<Input<KeyCode>>,
     map: Res<RegionMap>,
     console: Res<Console>,
     rng: Res<Rng>,
 ) {
-    for ( player, tile_pos) in player.iter() {
+    for (player, tile_pos) in player.iter() {
         if keyboard.just_pressed(KeyCode::Space) {
             let mut target = (tile_pos.x, tile_pos.y);
             match player.facing {
