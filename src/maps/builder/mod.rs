@@ -14,6 +14,7 @@ pub struct MapTransfer {
     pub name: String,
     pub player_start: (i32, i32),
     pub exits: Vec<(usize, usize)>,
+    pub spawns: Vec<(String, i32, i32)>,
 }
 
 pub fn builder(map: MapToBuild, rng: &Rng) -> MapTransfer {

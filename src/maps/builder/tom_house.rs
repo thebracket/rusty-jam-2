@@ -6,6 +6,7 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
     let mut exits = Vec::new();
+    let mut spawns = Vec::new();
 
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {
@@ -71,11 +72,26 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
     // Add a rocky outcropping
     spawn_big_feature(0, 11, TileType::LeftButte, &mut features);
 
+    // Add some pretty flowers and chickens
+    tiles.iter_mut().enumerate().for_each(|(idx, t)| {
+        if features[idx] == TileType::None && *t == TileType::Grass {
+            if rng.range(1, 10) < 2 {
+                features[idx] = TileType::Flower;
+            }
+            if rng.range(1, 20) < 2 {
+                let x = idx % NUM_TILES_X;
+                let y = idx / NUM_TILES_X;
+                spawns.push(("Chicken".to_string(), x as i32, y as i32));
+            }
+        }
+    });
+
     MapTransfer {
         tiles,
         features,
         name: "Farmer Tom's House".to_string(),
         player_start,
         exits,
+        spawns,
     }
 }

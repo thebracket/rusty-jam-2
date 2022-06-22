@@ -1,9 +1,11 @@
 use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
+use fov::update_field_of_view;
 use henry::{henry_ai, spawn_henry};
 use interactions::player_interaction;
 use maps::{tile_location_added, tile_lerp, map_exits, RegionMap, MapToBuild};
+use normal_chicken::chicken_ai;
 use player::{player_movement, spawn_player};
 use random::Rng;
 mod assets;
@@ -13,6 +15,8 @@ mod player;
 mod interactions;
 mod random;
 mod maps;
+mod fov;
+mod normal_chicken;
 
 fn main() {
     App::new()
@@ -33,7 +37,9 @@ fn main() {
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
                 .with_system(tile_lerp)
-                .with_system(henry_ai),
+                .with_system(henry_ai)
+                .with_system(chicken_ai)
+                .with_system(update_field_of_view)
         )
         .add_stage_after(CoreStage::Update, "migration", SystemStage::parallel())
         .add_system(map_exits)
