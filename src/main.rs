@@ -53,10 +53,15 @@ fn main() {
         )
         .add_stage_after(
             CoreStage::Update,
-            "migration",
+            "battle",
             SystemStage::single_threaded(),
         )
         .add_system(damage_system)
+        .add_stage_after(
+            CoreStage::Update,
+            "migration",
+            SystemStage::single_threaded(),
+        )
         .add_system(map_exits)
         .run();
 }
