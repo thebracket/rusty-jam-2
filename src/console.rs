@@ -12,7 +12,7 @@ const NUM_LINES: usize = 6;
 impl Console {
     pub fn new() -> Self {
         let mut text = vec![(String::new(), Color::WHITE); NUM_LINES];
-        text[0] = ("Welcome to Happy Chicken".to_string(), Color::YELLOW);
+        text[0] = ("Welcome to Mega-Chicken".to_string(), Color::YELLOW);
         text[1] = (
             "Use cursor keys to move, J to jump, SPACE to interact with the object you are facing."
                 .to_string(),

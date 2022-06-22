@@ -23,7 +23,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 1024.0,
             height: 768.0,
-            title: "Happy Chickens".to_string(),
+            title: "Mega Chicken".to_string(),
             resizable: false,
             ..Default::default()
         })

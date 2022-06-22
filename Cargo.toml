@@ -9,3 +9,7 @@ edition = "2021"
 bevy = "0.7"
 bracket-random = "0.8"
 bracket-pathfinding = { version = "0.8", default-features = false }
+
+[profile.release]
+strip = "debuginfo"
+lto = "thin"
