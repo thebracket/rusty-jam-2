@@ -41,7 +41,6 @@ fn main() {
         .add_system(chicken_ai)
         .add_system(farmer_ai)
         .add_system(update_health_hud)
-        .add_system(combat_system)
         .add_system(combat_lerp)
         .add_system_set(
             SystemSet::new()
@@ -56,6 +55,7 @@ fn main() {
             "battle",
             SystemStage::single_threaded(),
         )
+        .add_system(combat_system)
         .add_system(damage_system)
         .add_stage_after(
             CoreStage::Update,
