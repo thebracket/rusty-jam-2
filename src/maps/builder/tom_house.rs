@@ -66,6 +66,9 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
     tiles[tile_index(13, 14)] = TileType::CobbleBL;
     tiles[tile_index(24, 14)] = TileType::CobbleBR;
 
+    // Anvil
+    features[tile_index(23, 13)] = TileType::Anvil;
+
     // Add a haycart
     spawn_big_feature(10, 5, TileType::HayCart, &mut features);
 

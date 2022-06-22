@@ -25,6 +25,7 @@ pub enum TileType {
     CobbleBL,
     CobbleB,
     CobbleBR,
+    Anvil,
 }
 
 impl TileType {
@@ -39,6 +40,7 @@ impl TileType {
             TileType::Flower => 5,
             TileType::Road => 6,
             TileType::Cauldron => 7,
+            TileType::Anvil => 8,
             TileType::CobbleTL => 19,
             TileType::CobbleT => 20,
             TileType::CobbleTR => 21,
@@ -81,7 +83,8 @@ impl TileType {
             | TileType::FenceVertical
             | TileType::Bush
             | TileType::HayCart
-            | TileType::Barn => false,
+            | TileType::Barn 
+            | TileType::Anvil => false,
             TileType::LeftButte => false,
             _ => true,
         }
