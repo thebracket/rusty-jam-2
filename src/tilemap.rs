@@ -24,6 +24,16 @@ pub enum TileType {
     ReferTo(usize),
     Barn,
     LeftButte,
+    Cauldron,
+    CobbleTL,
+    CobbleT,
+    CobbleTR,
+    CobbleL,
+    Cobble,
+    CobbleR,
+    CobbleBL,
+    CobbleB,
+    CobbleBR,
 }
 
 impl TileType {
@@ -37,6 +47,16 @@ impl TileType {
             TileType::Bush => 4,
             TileType::Flower => 5,
             TileType::Road => 6,
+            TileType::Cauldron => 7,
+            TileType::CobbleTL => 19,
+            TileType::CobbleT => 20,
+            TileType::CobbleTR => 21,
+            TileType::CobbleL => 35,
+            TileType::Cobble => 36,
+            TileType::CobbleR => 37,
+            TileType::CobbleBL => 51,
+            TileType::CobbleB => 52,
+            TileType::CobbleBR => 53,
             _ => 0,
         }
     }
@@ -83,6 +103,10 @@ impl TileType {
                     "This bush is prickly, but you might be able to jump it.",
                     Color::WHITE,
                 );
+            }
+            TileType::Cauldron => {
+                console.write("I guess that explains why you're a 6 foot tall chicken!", Color::YELLOW);
+                console.write("Farmer Tom's Magic Miracle Grow", Color::YELLOW);
             }
             _ => {}
         }

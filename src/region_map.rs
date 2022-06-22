@@ -242,6 +242,9 @@ fn build_farmer_tom_coup() -> MapTransfer {
         }
     }
 
+    // Cauldron
+    features[tile_index(player_start.0-3, player_start.1)] = TileType::Cauldron;
+
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {
         features[tile_index(x, 0)] = TileType::Bush;
@@ -334,11 +337,32 @@ fn build_toms_house() -> MapTransfer {
         }
     }
 
+    // Cobbles
+    for x in 13..25 {
+        for y in 6..15 {
+            if y == 6 {
+                tiles[tile_index(x, y)] = TileType::CobbleT;
+            } else if y == 14 {
+                tiles[tile_index(x, y)] = TileType::CobbleB;
+            } else if x == 13 {
+                tiles[tile_index(x, y)] = TileType::CobbleL;
+            } else if x == 24 {
+                tiles[tile_index(x, y)] = TileType::CobbleR;
+            } else {
+                tiles[tile_index(x, y)] = TileType::Cobble;
+            }
+        }
+    }
+    tiles[tile_index(13, 6)] = TileType::CobbleTL;
+    tiles[tile_index(24, 6)] = TileType::CobbleTR;
+    tiles[tile_index(13, 14)] = TileType::CobbleBL;
+    tiles[tile_index(24, 14)] = TileType::CobbleBR;
+
     // Add a haycart
     spawn_big_feature(10, 5, TileType::HayCart, &mut features);
 
     // Add a barn
-    spawn_big_feature(11, 7, TileType::Barn, &mut features);
+    spawn_big_feature(14, 5, TileType::Barn, &mut features);
 
     // Add a rocky outcropping
     spawn_big_feature(0, 11, TileType::LeftButte, &mut features);
