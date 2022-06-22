@@ -2,10 +2,9 @@ use crate::{
     assets::GameAssets,
     console::Console,
     player::{Player, Facing},
-    tilemap::{TileMapLayer, TilePosition, TileType, NUM_TILES_X, NUM_TILES_Y, LerpMove}, henry::Henry,
+    tilemap::{TileMapLayer, TilePosition, TileType, NUM_TILES_X, NUM_TILES_Y, LerpMove}, henry::Henry, random::Rng,
 };
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bracket_random::prelude::RandomNumberGenerator;
 
 #[derive(Component)]
 pub struct MapElement;
@@ -21,6 +20,7 @@ pub fn map_exits(
     mut commands: Commands,
     assets: Res<GameAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
+    rng: Res<Rng>,
 ) {
     let mut transition = None;
     for player_pos in queries.p0().iter() {
@@ -33,7 +33,7 @@ pub fn map_exits(
     }
 
     if let Some(new_map) = transition {
-        map.transition_to(new_map, &mut commands, &queries.p1(), &assets, &mut meshes);
+        map.transition_to(new_map, &mut commands, &queries.p1(), &assets, &mut meshes, &rng);
 
         // Adjust player position
         let mut player_pos = (0,0);
@@ -77,8 +77,8 @@ pub struct RegionMap {
 }
 
 impl RegionMap {
-    pub fn new(map: MapToBuild) -> Self {
-        let map = builder(map);
+    pub fn new(map: MapToBuild, rng: &Rng) -> Self {
+        let map = builder(map, rng);
 
         Self {
             name: map.name,
@@ -160,6 +160,7 @@ impl RegionMap {
         elements: &Query<Entity, With<MapElement>>,
         assets: &GameAssets,
         meshes: &mut Assets<Mesh>,
+        rng: &Rng,
     ) {
         // Remove the old map display
         elements.for_each(|e| commands.entity(e).despawn());
@@ -169,7 +170,7 @@ impl RegionMap {
             1 => MapToBuild::FarmHouse,
             _ => MapToBuild::FarmerTomCoup,
         };
-        let new_data = builder(to_build);
+        let new_data = builder(to_build, rng);
         self.base_tiles = new_data.tiles;
         self.exits = new_data.exits;
         self.features = new_data.features;
@@ -212,10 +213,10 @@ struct MapTransfer {
     exits: Vec<(usize, usize)>,
 }
 
-fn builder(map: MapToBuild) -> MapTransfer {
+fn builder(map: MapToBuild, rng: &Rng) -> MapTransfer {
     match map {
-        MapToBuild::FarmerTomCoup => build_farmer_tom_coup(),
-        MapToBuild::FarmHouse => build_toms_house(),
+        MapToBuild::FarmerTomCoup => build_farmer_tom_coup(rng),
+        MapToBuild::FarmHouse => build_toms_house(rng),
     }
 }
 
@@ -223,8 +224,7 @@ pub fn tile_index(x: i32, y: i32) -> usize {
     ((NUM_TILES_X as i32 * y) + x) as usize
 }
 
-fn build_farmer_tom_coup() -> MapTransfer {
-    let mut rng = RandomNumberGenerator::new();
+fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
@@ -296,8 +296,7 @@ fn build_farmer_tom_coup() -> MapTransfer {
     }
 }
 
-fn build_toms_house() -> MapTransfer {
-    let mut rng = RandomNumberGenerator::new();
+fn build_toms_house(rng: &Rng) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
     let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);

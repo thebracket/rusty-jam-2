@@ -19,7 +19,7 @@ impl Console {
             Color::CYAN,
         );
         text[2] = (
-            "Henry the dog is here to help you find the missing eggs. He promises not to eat them."
+            "Henry the dog is here to help you find the golden egg. He promises not to eat anything important."
                 .to_string(),
             Color::GREEN,
         );

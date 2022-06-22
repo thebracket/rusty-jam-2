@@ -2,7 +2,9 @@ use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
 use console::{console_setup, update_consoles, Console};
 use henry::{henry_ai, spawn_henry};
+use interactions::player_interaction;
 use player::{player_movement, spawn_player};
+use random::Rng;
 use region_map::{MapToBuild, RegionMap, map_exits};
 use tilemap::{tile_lerp, tile_location_added};
 mod assets;
@@ -11,6 +13,8 @@ mod henry;
 mod player;
 mod region_map;
 mod tilemap;
+mod interactions;
+mod random;
 
 fn main() {
     App::new()
@@ -24,6 +28,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
         .add_system(player_movement)
+        .add_system(player_interaction)
         .add_system(tile_location_added)
         .add_system(update_consoles)
         .add_system_set(
@@ -44,6 +49,9 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
+    // Make an RNG
+    let rng = Rng::new();
+
     // 2D games need these
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands.spawn_bundle(UiCameraBundle::default());
@@ -54,7 +62,7 @@ fn setup(
     console_setup(&assets, &mut commands, &console);
 
     // Spawn a map
-    let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup);
+    let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player
@@ -67,4 +75,5 @@ fn setup(
     commands.insert_resource(region_map);
     commands.insert_resource(assets);
     commands.insert_resource(console);
+    commands.insert_resource(rng);
 }

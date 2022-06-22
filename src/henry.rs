@@ -2,7 +2,7 @@ use crate::{
     assets::GameAssets,
     player::{Facing, Player},
     region_map::RegionMap,
-    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, interactions::Interaction,
 };
 use bevy::prelude::*;
 
@@ -27,6 +27,13 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
         })
         .insert(Henry {
             facing: Facing::Right,
+        })
+        .insert(Interaction{
+            output: vec![
+                ("Henry wags his tail".to_string(), Color::YELLOW),
+                ("Henry slurps your face".to_string(), Color::YELLOW),
+                ("Henry encourages you to find the golden egg and win the game".to_string(), Color::YELLOW),
+            ]
         });
 }
 

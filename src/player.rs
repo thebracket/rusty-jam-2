@@ -1,6 +1,5 @@
 use crate::{
     assets::GameAssets,
-    console::Console,
     region_map::RegionMap,
     tilemap::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
@@ -45,7 +44,6 @@ pub fn player_movement(
     keyboard: Res<Input<KeyCode>>,
     map: Res<RegionMap>,
     mut commands: Commands,
-    console: Res<Console>,
 ) {
     for (entity, mut player, tile_pos, mut sprite) in player.iter_mut() {
         let mut jumping = false;
@@ -72,17 +70,6 @@ pub fn player_movement(
         } else {
             (0, 0)
         };
-
-        if keyboard.just_pressed(KeyCode::Space) {
-            let mut target = (tile_pos.x, tile_pos.y);
-            match player.facing {
-                Facing::Left => target.0 -= 1,
-                Facing::Right => target.0 += 1,
-                Facing::Up => target.1 -= 1,
-                Facing::Down => target.1 += 1,
-            }
-            map.interact(target.0, target.1, &console);
-        }
 
         sprite.index = match player.facing {
             Facing::Left => 12,
