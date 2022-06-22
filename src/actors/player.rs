@@ -55,16 +55,16 @@ pub fn player_movement(
 ) {
     for (entity, mut player, tile_pos, mut sprite) in player.iter_mut() {
         let mut jumping = false;
-        let delta: (i32, i32) = if keyboard.pressed(KeyCode::Left) {
+        let delta: (i32, i32) = if keyboard.pressed(KeyCode::Left) || keyboard.pressed(KeyCode::A) {
             player.facing = Facing::Left;
             (-1, 0)
-        } else if keyboard.pressed(KeyCode::Right) {
+        } else if keyboard.pressed(KeyCode::Right) || keyboard.pressed(KeyCode::D) {
             player.facing = Facing::Right;
             (1, 0)
-        } else if keyboard.pressed(KeyCode::Up) {
+        } else if keyboard.pressed(KeyCode::Up) || keyboard.pressed(KeyCode::W) {
             player.facing = Facing::Up;
             (0, -1)
-        } else if keyboard.pressed(KeyCode::Down) {
+        } else if keyboard.pressed(KeyCode::Down) || keyboard.pressed(KeyCode::S) {
             player.facing = Facing::Down;
             (0, 1)
         } else if keyboard.just_pressed(KeyCode::J) {
