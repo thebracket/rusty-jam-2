@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bracket_pathfinding::prelude::{Point, DijkstraMap};
-use crate::{assets::GameAssets, maps::{tile_to_screen, TilePosition, RegionMap, LerpMove, NUM_TILES_X, NUM_TILES_Y, tile_index}, fov::FieldOfView, interactions::Interaction, random::Rng};
+use crate::{assets::GameAssets, maps::{tile_to_screen, TilePosition, RegionMap, LerpMove, NUM_TILES_X, NUM_TILES_Y, tile_index, MapElement}, fov::FieldOfView, interactions::Interaction, random::Rng};
 
 #[derive(Component)]
 pub struct Chicken;
@@ -33,7 +33,8 @@ pub fn spawn_chicken(
                 ("The chicken clucks. It lacks the heart of a mega-chicken.".to_string(), Color::WHITE),
             ]
         })
-        .insert(FieldOfView::new(3));
+        .insert(FieldOfView::new(3))
+        .insert(MapElement); // Don't persist chickens between levels
 }
 
 pub fn chicken_ai(

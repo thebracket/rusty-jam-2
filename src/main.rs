@@ -33,12 +33,12 @@ fn main() {
         .add_system(player_interaction)
         .add_system(tile_location_added)
         .add_system(update_consoles)
+        .add_system(chicken_ai)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
                 .with_system(tile_lerp)
                 .with_system(henry_ai)
-                .with_system(chicken_ai)
                 .with_system(update_field_of_view)
         )
         .add_stage_after(CoreStage::Update, "migration", SystemStage::parallel())
