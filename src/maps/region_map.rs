@@ -1,5 +1,10 @@
 use super::{builder, tile_index, MapToBuild, TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y};
-use crate::{actors::{spawn_chicken, spawn_farmer}, assets::GameAssets, console::Console, random::Rng};
+use crate::{
+    actors::{spawn_chicken, spawn_farmer, spawn_wolf},
+    assets::GameAssets,
+    console::Console,
+    random::Rng,
+};
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, DistanceAlg, Point, SmallVec};
 
@@ -43,6 +48,7 @@ impl RegionMap {
             match tag.as_str() {
                 "Chicken" => spawn_chicken(*x, *y, assets, commands),
                 "Farmer" => spawn_farmer(*x, *y, assets, commands),
+                "WeakWolf" => spawn_wolf(*x, *y, 1, assets, commands),
                 _ => println!("Warning: Don't know how to spawn a [{tag}]"),
             }
         }

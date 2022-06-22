@@ -1,9 +1,12 @@
 use crate::{
     assets::GameAssets,
+    combat::Health,
     maps::RegionMap,
-    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y}, combat::Health,
+    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::prelude::*;
+
+use super::Tasty;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Facing {
@@ -34,7 +37,11 @@ pub fn spawn_player(commands: &mut Commands, assets: &GameAssets, start: (i32, i
             x: start.0,
             y: start.1,
         })
-        .insert(Health{current: 10, max: 10});
+        .insert(Health {
+            current: 10,
+            max: 10,
+        })
+        .insert(Tasty);
 }
 
 pub fn player_movement(

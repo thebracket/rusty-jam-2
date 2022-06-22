@@ -1,7 +1,12 @@
-use actors::{chicken_ai, henry_ai, player_movement, spawn_henry, spawn_player, farmer_ai};
+use actors::{
+    chicken_ai, farmer_ai, henry_ai, player_movement, spawn_henry, spawn_player, wolf_ai,
+};
 use assets::GameAssets;
 use bevy::{core::FixedTimestep, prelude::*};
-use combat::{setup_health_hud, update_health_hud};
+use combat::{
+    combat_lerp, combat_system, damage_system, setup_health_hud, update_health_hud, AttackMessage,
+    DamageMessage,
+};
 use console::{console_setup, update_consoles, Console};
 use fov::update_field_of_view;
 use interactions::player_interaction;
@@ -9,12 +14,12 @@ use maps::{map_exits, tile_lerp, tile_location_added, MapToBuild, RegionMap};
 use random::Rng;
 mod actors;
 mod assets;
+mod combat;
 mod console;
 mod fov;
 mod interactions;
 mod maps;
 mod random;
-mod combat;
 
 fn main() {
     App::new()
@@ -26,6 +31,8 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_event::<AttackMessage>()
+        .add_event::<DamageMessage>()
         .add_startup_system(setup)
         .add_system(player_movement)
         .add_system(player_interaction)
@@ -34,14 +41,22 @@ fn main() {
         .add_system(chicken_ai)
         .add_system(farmer_ai)
         .add_system(update_health_hud)
+        .add_system(combat_system)
+        .add_system(combat_lerp)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(1.0 / 30.0))
                 .with_system(tile_lerp)
                 .with_system(henry_ai)
+                .with_system(wolf_ai)
                 .with_system(update_field_of_view),
         )
-        .add_stage_after(CoreStage::Update, "migration", SystemStage::parallel())
+        .add_stage_after(
+            CoreStage::Update,
+            "migration",
+            SystemStage::single_threaded(),
+        )
+        .add_system(damage_system)
         .add_system(map_exits)
         .run();
 }

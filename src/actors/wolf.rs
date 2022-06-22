@@ -1,69 +1,71 @@
-use bevy::prelude::*;
-use bracket_pathfinding::prelude::{DijkstraMap, Point};
-
+use super::ScaresChickens;
 use crate::{
     assets::GameAssets,
-    combat::Health,
-    console::Console,
+    combat::{AttackMessage, Health, Hostile, LerpAttack, Unconscious},
     fov::FieldOfView,
-    interactions::Interaction,
     maps::{
         tile_index, tile_to_screen, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X,
         NUM_TILES_Y,
     },
 };
-
-use super::{Player, Tasty};
+use bevy::prelude::*;
+use bracket_pathfinding::prelude::{DijkstraMap, DistanceAlg, Point};
 
 #[derive(Component)]
-pub struct Farmer;
+pub struct Wolf;
 
-pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands) {
+#[derive(Component)]
+pub struct Tasty;
+
+pub fn spawn_wolf(x: i32, y: i32, health: i32, assets: &GameAssets, commands: &mut Commands) {
     let pos = tile_to_screen(x, y);
 
     commands
-        .spawn_bundle(SpriteBundle {
-            texture: assets.tom.clone(),
+        .spawn_bundle(SpriteSheetBundle {
+            texture_atlas: assets.doggies.clone(),
             transform: Transform::from_xyz(pos.0, pos.1, 2.0),
+            sprite: TextureAtlasSprite::new(12),
             ..default()
         })
         .insert(TilePosition { x, y })
-        .insert(Farmer)
-        .insert(Interaction {
-            output: vec![
-                (
-                    "The farmer yells 'Get away from me!'".to_string(),
-                    Color::WHITE,
-                ),
-                (
-                    "The farmer sobs 'I've unleashed a monster!'".to_string(),
-                    Color::WHITE,
-                ),
-                (
-                    "The farmer sighs 'I never should have bought Magic Miracle Grow!'".to_string(),
-                    Color::WHITE,
-                ),
-            ],
-        })
+        .insert(Wolf)
         .insert(FieldOfView::new(8))
         .insert(MapElement)
-        .insert(Health { current: 3, max: 3 })
-        .insert(Tasty); // Don't persist chickens between levels
+        .insert(Health {
+            current: health,
+            max: health,
+        })
+        .insert(Hostile)
+        .insert(ScaresChickens);
 }
 
-pub fn farmer_ai(
+pub fn wolf_ai(
     map: Res<RegionMap>,
-    mut ai_query: Query<(Entity, &TilePosition, &FieldOfView), (With<Farmer>, Without<LerpMove>)>,
-    scary_query: Query<&TilePosition, With<Player>>,
+    mut ai_query: Query<
+        (Entity, &TilePosition, &FieldOfView, &mut TextureAtlasSprite),
+        (With<Wolf>, Without<LerpMove>, Without<LerpAttack>),
+    >,
+    tasty_query: Query<(Entity, &TilePosition), (With<Tasty>, Without<Unconscious>)>,
     mut commands: Commands,
-    console: Res<Console>,
+    mut attack: EventWriter<AttackMessage>,
 ) {
     let mut delta = None;
-    for (entity, pos, fov) in ai_query.iter_mut() {
-        // Check for things to run away from
+    for (entity, pos, fov, mut _sprite) in ai_query.iter_mut() {
+        // Look for things to eat
+        tasty_query.iter().for_each(|(e, tpos)| {
+            if DistanceAlg::Pythagoras
+                .distance2d(Point::new(pos.x, pos.y), Point::new(tpos.x, tpos.y))
+                < 1.2
+            {
+                attack.send(AttackMessage(entity, e));
+                return;
+            }
+        });
+
+        // Check for things to eat
         if !fov.fov_set.is_empty() {
             let mut starts = Vec::new();
-            for epos in scary_query.iter() {
+            for (_, epos) in tasty_query.iter() {
                 let pt = Point::new(epos.x, epos.y);
                 if fov.fov_set.contains(&pt) {
                     starts.push(tile_index(pt.x, pt.y));
@@ -71,7 +73,7 @@ pub fn farmer_ai(
                 if !starts.is_empty() {
                     let scary_map = DijkstraMap::new(NUM_TILES_X, NUM_TILES_Y, &starts, &*map, 9.0);
                     if let Some(exit) =
-                        DijkstraMap::find_highest_exit(&scary_map, tile_index(pos.x, pos.y), &*map)
+                        DijkstraMap::find_lowest_exit(&scary_map, tile_index(pos.x, pos.y), &*map)
                     {
                         let x = (exit % NUM_TILES_X) as i32;
                         let y = (exit / NUM_TILES_X) as i32;
@@ -83,7 +85,6 @@ pub fn farmer_ai(
 
         if let Some(delta) = delta {
             if map.can_player_enter(pos.x + delta.0, pos.y + delta.1) {
-                console.write("The farmer screams about scary giant chickens", Color::PINK);
                 commands.entity(entity).insert(LerpMove {
                     jumping: false,
                     start: (pos.x, pos.y),

@@ -1,3 +1,5 @@
+use bracket_pathfinding::prelude::{DistanceAlg, Point};
+
 use super::MapTransfer;
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
@@ -72,6 +74,29 @@ pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
             }
         }
     }
+
+    // Spawn a wolf
+    let bottom_left = Point::new(0, NUM_TILES_Y - 1);
+    let mut candidates: Vec<(usize, f32)> = tiles
+        .iter()
+        .enumerate()
+        .filter(|(idx, t)| **t == TileType::Grass && features[*idx] == TileType::None)
+        .map(|(idx, _)| {
+            (
+                idx,
+                DistanceAlg::Pythagoras.distance2d(
+                    Point::new((idx % NUM_TILES_X) as i32, (idx / NUM_TILES_X) as i32),
+                    bottom_left,
+                ),
+            )
+        })
+        .collect();
+    candidates.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    spawns.push((
+        "WeakWolf".to_string(),
+        (candidates[0].0 % NUM_TILES_X) as i32,
+        (candidates[0].0 / NUM_TILES_X) as i32,
+    ));
 
     MapTransfer {
         tiles,

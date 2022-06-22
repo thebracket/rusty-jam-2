@@ -1,10 +1,16 @@
+use std::collections::HashSet;
+
 use crate::{
     assets::GameAssets,
+    combat::{AttackMessage, Health, Hostile, Unconscious},
     fov::FieldOfView,
     interactions::Interaction,
-    maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y}, combat::Health,
+    maps::{
+        tile_index, tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y,
+    },
 };
 use bevy::prelude::*;
+use bracket_pathfinding::prelude::{DijkstraMap, DistanceAlg, Point};
 
 use super::{Facing, Player, ScaresChickens};
 
@@ -42,7 +48,11 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
         })
         .insert(FieldOfView::new(8))
         .insert(ScaresChickens)
-        .insert(Health{current: 10, max: 10});
+        .insert(Health {
+            current: 10,
+            max: 10,
+        });
+    //.insert(Tasty);
 }
 
 pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {
@@ -54,13 +64,79 @@ pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {
 pub fn henry_ai(
     mut queries: ParamSet<(
         Query<&TilePosition, With<Player>>,
-        Query<(Entity, &mut Henry, &TilePosition), Without<LerpMove>>,
+        Query<
+            (Entity, &mut Henry, &TilePosition, &FieldOfView),
+            (Without<LerpMove>, Without<Unconscious>),
+        >,
+        Query<(Entity, &TilePosition), (With<Hostile>, Without<Unconscious>)>,
     )>,
     map: Res<RegionMap>,
     mut commands: Commands,
+    mut attack: EventWriter<AttackMessage>,
 ) {
     let player_pos = queries.p0().single().clone();
-    for (entity, mut henry, henry_pos) in queries.p1().iter_mut() {
+    {
+        // This is a borrow-checker fighting mess
+        let (hpos, henry_entity, fov_set) = if let Ok(hq) = queries.p1().get_single() {
+            let hpos = (hq.2.x, hq.2.y);
+            let henry_entity = hq.0.clone();
+            (hpos, Some(henry_entity), hq.3.fov_set.clone())
+        } else {
+            ((0, 0), None, HashSet::new())
+        };
+
+        // Combat Henry
+        queries.p2().iter().for_each(|(e, tpos)| {
+            if DistanceAlg::Pythagoras
+                .distance2d(Point::new(hpos.0, hpos.1), Point::new(tpos.x, tpos.y))
+                < 1.2
+            {
+                attack.send(AttackMessage(henry_entity.unwrap(), e));
+                return;
+            }
+        });
+
+        // Check for things to chase
+        let mut delta = None;
+        if !fov_set.is_empty() {
+            let mut starts = Vec::new();
+            for (_, epos) in queries.p2().iter() {
+                let pt = Point::new(epos.x, epos.y);
+                if fov_set.contains(&pt) {
+                    starts.push(tile_index(pt.x, pt.y));
+                }
+                if !starts.is_empty() {
+                    let scary_map = DijkstraMap::new(NUM_TILES_X, NUM_TILES_Y, &starts, &*map, 9.0);
+                    if let Some(exit) =
+                        DijkstraMap::find_lowest_exit(&scary_map, tile_index(hpos.0, hpos.1), &*map)
+                    {
+                        let x = (exit % NUM_TILES_X) as i32;
+                        let y = (exit / NUM_TILES_X) as i32;
+                        delta = Some((x - hpos.0, y - hpos.1));
+                    }
+                }
+            }
+        }
+
+        if let Some(delta) = delta {
+            let destination = (
+                (hpos.0 + delta.0).clamp(0, NUM_TILES_X as i32 - 1),
+                (hpos.1 + delta.1).clamp(0, NUM_TILES_Y as i32 - 1),
+            );
+            if map.can_player_enter(destination.0, destination.1) {
+                commands.entity(henry_entity.unwrap()).insert(LerpMove {
+                    start: (hpos.0, hpos.1),
+                    end: destination,
+                    step: 0,
+                    jumping: false,
+                    animate: None,
+                });
+            }
+        }
+    }
+
+    // Normal Henry
+    for (entity, mut henry, henry_pos, _) in queries.p1().iter_mut() {
         let distance = distance(&henry_pos, &player_pos);
         if distance > 1.6 {
             let x = henry_pos.x;
