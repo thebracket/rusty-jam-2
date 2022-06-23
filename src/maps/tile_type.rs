@@ -1,4 +1,4 @@
-use crate::console::Console;
+use crate::{combat::Health, console::Console};
 use bevy::prelude::Color;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
@@ -27,6 +27,9 @@ pub enum TileType {
     CobbleB,
     CobbleBR,
     Anvil,
+    CaveFloor,
+    Water,
+    Grain,
 }
 
 impl TileType {
@@ -42,6 +45,9 @@ impl TileType {
             TileType::Road => 6,
             TileType::Cauldron => 7,
             TileType::Anvil => 8,
+            TileType::CaveFloor => 9,
+            TileType::Water => 10,
+            TileType::Grain => 11,
             TileType::CobbleTL => 19,
             TileType::CobbleT => 20,
             TileType::CobbleTR => 21,
@@ -76,10 +82,10 @@ impl TileType {
             )),
             TileType::CaveMouth => Some((
                 6,
-                3,
+                1,
                 vec![
-                    146, 147, 148, 149, 150, 151, 162, 163, 164, 165, 166, 167, 178, 179, 180, 181,
-                    182, 183,
+                    //146, 147, 148, 149, 150, 151, 162, 163, 164, 165, 166, 167,
+                    178, 179, 180, 181, 182, 183,
                 ],
             )),
             _ => None,
@@ -96,11 +102,12 @@ impl TileType {
             | TileType::Anvil => false,
             TileType::LeftButte => false,
             TileType::CaveMouth => false,
+            TileType::Water => false,
             _ => true,
         }
     }
 
-    pub fn interact(&self, console: &Console) {
+    pub fn interact(&self, console: &Console, health: &mut Health) {
         match self {
             TileType::FenceHorizontal | TileType::FenceVertical => {
                 console.write(
@@ -120,6 +127,10 @@ impl TileType {
                     Color::YELLOW,
                 );
                 console.write("Farmer Tom's Magic Miracle Grow", Color::YELLOW);
+            }
+            TileType::Grain => {
+                console.write("Yummy, grain!", Color::GREEN);
+                health.current = health.max;
             }
             _ => {}
         }

@@ -2,6 +2,7 @@ use super::{builder, tile_index, MapToBuild, TileMapLayer, TileType, NUM_TILES_X
 use crate::{
     actors::{spawn_chicken, spawn_farmer, spawn_wolf},
     assets::GameAssets,
+    combat::Health,
     console::Console,
     random::Rng,
     GameElement,
@@ -21,11 +22,12 @@ pub struct RegionMap {
     pub mesh2: Option<Handle<Mesh>>,
     pub exits: Vec<(usize, usize)>,
     pub spawns: Vec<(String, i32, i32)>,
+    pub id: MapToBuild,
 }
 
 impl RegionMap {
-    pub fn new(map: MapToBuild, rng: &Rng) -> Self {
-        let map = builder(map, rng);
+    pub fn new(map_type: MapToBuild, rng: &Rng) -> Self {
+        let map = builder(map_type, rng, None);
 
         Self {
             name: map.name,
@@ -36,6 +38,7 @@ impl RegionMap {
             mesh: None,
             mesh2: None,
             spawns: map.spawns,
+            id: map_type,
         }
     }
 
@@ -119,17 +122,17 @@ impl RegionMap {
         assets: &GameAssets,
         meshes: &mut Assets<Mesh>,
         rng: &Rng,
-    ) {
+    ) -> Point {
         // Remove the old map display
         elements.for_each(|e| commands.entity(e).despawn());
 
         // Build a map
         let to_build = match new_map {
             1 => MapToBuild::FarmHouse,
-            //2 => MapToBuild::Cave1,
+            2 => MapToBuild::Cave1,
             _ => MapToBuild::FarmerTomCoup,
         };
-        let new_data = builder(to_build, rng);
+        let new_data = builder(to_build, rng, Some(self.id));
         self.base_tiles = new_data.tiles;
         self.exits = new_data.exits;
         self.features = new_data.features;
@@ -138,6 +141,7 @@ impl RegionMap {
 
         // Spawn the new one
         self.spawn(assets, meshes, commands);
+        Point::new(new_data.player_start.0, new_data.player_start.1)
     }
 
     pub fn can_player_enter(&self, x: i32, y: i32) -> bool {
@@ -161,10 +165,10 @@ impl RegionMap {
         can_go
     }
 
-    pub fn interact(&self, x: i32, y: i32, console: &Console) {
+    pub fn interact(&self, x: i32, y: i32, console: &Console, health: &mut Health) {
         let idx = tile_index(x, y);
-        self.base_tiles[idx].interact(console);
-        self.features[idx].interact(console);
+        self.base_tiles[idx].interact(console, health);
+        self.features[idx].interact(console, health);
     }
 
     fn try_exit(&self, location: Point, delta: Point) -> Option<usize> {

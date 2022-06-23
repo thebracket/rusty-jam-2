@@ -1,7 +1,7 @@
 use crate::{
     actors::Player,
     ai::{ActionRequest, Facing},
-    combat::Hostile,
+    combat::{Health, Hostile},
     console::Console,
     maps::{LerpMove, RegionMap, TilePosition},
     random::Rng,
@@ -15,7 +15,7 @@ pub struct Interaction {
 }
 
 pub fn player_interaction(
-    player: Query<(Entity, &Player, &TilePosition), Without<LerpMove>>,
+    mut player: Query<(Entity, &Player, &TilePosition, &mut Health), Without<LerpMove>>,
     interactions: Query<(&Interaction, &TilePosition), Without<LerpMove>>,
     hostiles: Query<(Entity, &TilePosition), With<Hostile>>,
     keyboard: Res<Input<KeyCode>>,
@@ -24,7 +24,7 @@ pub fn player_interaction(
     rng: Res<Rng>,
     mut actions: EventWriter<ActionRequest>,
 ) {
-    for (entity, player, tile_pos) in player.iter() {
+    for (entity, player, tile_pos, mut health) in player.iter_mut() {
         if keyboard.just_pressed(KeyCode::Space) {
             let my_pt = Point::new(tile_pos.x, tile_pos.y);
             for (hostile, hpos) in hostiles.iter() {
@@ -51,7 +51,7 @@ pub fn player_interaction(
                 Facing::Up => target.1 -= 1,
                 Facing::Down => target.1 += 1,
             }
-            map.interact(target.0, target.1, &console);
+            map.interact(target.0, target.1, &console, &mut health);
 
             for (interact, ipos) in interactions.iter() {
                 if ipos.x == target.0 && ipos.y == target.1 {

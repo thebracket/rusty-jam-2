@@ -1,7 +1,7 @@
-use super::{tile_index, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y};
+use super::{tile_index, LerpMove, MapElement, RegionMap, TilePosition};
 use crate::{
     actors::{Henry, Player},
-    ai::{ActionRequest, Facing},
+    ai::ActionRequest,
     assets::GameAssets,
     combat::DamageMessage,
     random::Rng,
@@ -23,7 +23,6 @@ pub fn map_exits(
     mut events: ResMut<Events<ActionRequest>>,
     mut damage: ResMut<Events<DamageMessage>>,
 ) {
-    // Clear the events queue
     let mut transition = None;
     for player_pos in queries.p0().iter() {
         let player_idx = tile_index(player_pos.x, player_pos.y);
@@ -35,10 +34,13 @@ pub fn map_exits(
     }
 
     if let Some(new_map) = transition {
+        // Clear the events queue
         events.clear();
         damage.clear();
+        //events.update();
+        //damage.update();
 
-        map.transition_to(
+        let starting_pos = map.transition_to(
             new_map,
             &mut commands,
             &queries.p1(),
@@ -49,31 +51,20 @@ pub fn map_exits(
 
         // Adjust player position
         let mut player_pos = (0, 0);
-        for (player, mut ppos) in queries.p2().iter_mut() {
-            player_pos = (ppos.x, ppos.y);
-            match player.facing {
-                Facing::Up => {
-                    ppos.y = NUM_TILES_Y as i32 - 1;
-                    player_pos.1 = NUM_TILES_Y as i32 - 1;
-                }
-                Facing::Down => {
-                    ppos.y = 0;
-                    player_pos.1 = 0;
-                }
-                Facing::Left => {
-                    ppos.x = NUM_TILES_X as i32 - 1;
-                    player_pos.0 = NUM_TILES_X as i32 - 1;
-                }
-                Facing::Right => {
-                    ppos.x = 0;
-                    player_pos.0 = 0;
-                }
-            }
+        for (_player, mut ppos) in queries.p2().iter_mut() {
+            player_pos = (starting_pos.x, starting_pos.y);
+            ppos.x = starting_pos.x;
+            ppos.y = starting_pos.y;
         }
         for (henry, mut henry_pos) in queries.p3().iter_mut() {
             henry_pos.x = player_pos.0 - 1;
             henry_pos.y = player_pos.1;
             commands.entity(henry).remove::<LerpMove>();
         }
+
+        events.clear();
+        damage.clear();
+        events.update();
+        damage.update();
     }
 }

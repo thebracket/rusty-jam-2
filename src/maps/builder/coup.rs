@@ -1,32 +1,36 @@
-use bracket_pathfinding::prelude::{DistanceAlg, Point};
-
-use super::MapTransfer;
+use super::{MapToBuild, MapTransfer};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
 };
+use bracket_pathfinding::prelude::{DistanceAlg, Point};
 
-pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
+pub fn build_farmer_tom_coup(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
-    let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
     let mut exits = Vec::new();
     let mut spawns = Vec::new();
 
+    let player_start = if let Some(_from) = from {
+        (17i32, 0i32)
+    } else {
+        (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2)
+    };
+
     // Coup
-    for x in player_start.0 - 5..player_start.0 + 5 {
-        for y in player_start.1 - 3..player_start.1 + 3 {
+    for x in 11..21 {
+        for y in 7..13 {
             tiles[tile_index(x, y)] = TileType::Dirt;
-            if y == player_start.1 - 3 || y == player_start.1 + 2 {
+            if y == 7 || y == 12 {
                 features[tile_index(x, y)] = TileType::FenceHorizontal;
-            } else if x == player_start.0 - 5 || x == player_start.0 + 4 {
+            } else if x == 11 || x == 20 {
                 features[tile_index(x, y)] = TileType::FenceVertical;
             }
         }
     }
 
     // Cauldron
-    features[tile_index(player_start.0 - 3, player_start.1)] = TileType::Cauldron;
+    features[tile_index(13, 10)] = TileType::Cauldron;
 
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {
@@ -65,8 +69,8 @@ pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
     });
 
     // Add a road
-    for y in 0..player_start.1 - 3 {
-        for x in player_start.0 - 1..player_start.0 + 2 {
+    for y in 0..7 {
+        for x in 15..18 {
             tiles[tile_index(x, y)] = TileType::Road;
             features[tile_index(x, y)] = TileType::None;
             if y == 0 {

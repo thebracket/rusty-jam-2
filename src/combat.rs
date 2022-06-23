@@ -121,14 +121,16 @@ pub struct Unconscious(pub u32);
 pub fn damage_system(
     mut events: EventReader<DamageMessage>,
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Health, Option<&Henry>, Option<&Player>)>,
-    mut growth: Query<(Entity, &mut Transform)>,
+    mut queries: ParamSet<(
+        Query<(Entity, &mut Health, Option<&Henry>, Option<&Player>)>,
+        Query<(Entity, &mut Transform, &mut Health)>,
+    )>,
     mut state: ResMut<State<GameState>>,
     mut action_queue: ResMut<Events<ActionRequest>>,
 ) {
     let mut killers = Vec::new();
     for damage in events.iter() {
-        for (e, mut health, henry, player) in query.iter_mut() {
+        for (e, mut health, henry, player) in queries.p0().iter_mut() {
             if e == damage.to {
                 health.current -= 1;
                 if health.current < 1 {
@@ -150,9 +152,10 @@ pub fn damage_system(
     }
 
     if !killers.is_empty() {
-        for (entity, mut trans) in growth.iter_mut() {
+        for (entity, mut trans, mut health) in queries.p1().iter_mut() {
             if killers.contains(&entity) {
                 trans.scale += 0.1;
+                health.max += 1;
             }
         }
     }

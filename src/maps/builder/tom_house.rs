@@ -1,17 +1,23 @@
-use bracket_pathfinding::prelude::{Point, DistanceAlg};
-
-use super::{spawn_big_feature, MapTransfer};
+use super::{spawn_big_feature, MapToBuild, MapTransfer};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
 };
+use bracket_pathfinding::prelude::{DistanceAlg, Point};
 
-pub fn build_toms_house(rng: &Rng) -> MapTransfer {
+pub fn build_toms_house(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
     let mut features = vec![TileType::None; NUM_TILES_X * NUM_TILES_Y];
-    let player_start = (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2);
     let mut exits = Vec::new();
     let mut spawns = Vec::new();
+    let player_start = if let Some(from) = from {
+        match from {
+            MapToBuild::Cave1 => (28, 3),
+            _ => (17i32, NUM_TILES_Y as i32 - 1),
+        }
+    } else {
+        (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2)
+    };
 
     // Boundaries
     for x in 0..NUM_TILES_X as i32 {
@@ -20,16 +26,10 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
         for y in 0..rng.range(1, 3) {
             features[tile_index(x, NUM_TILES_Y as i32 - 1 - y)] = TileType::Bush;
         }
-        for y in 0..rng.range(1, 3) {
-            features[tile_index(x, y)] = TileType::Bush;
-        }
     }
     for y in 0..NUM_TILES_Y as i32 {
         features[tile_index(0, y)] = TileType::Bush;
         features[tile_index(NUM_TILES_X as i32 - 1, y)] = TileType::Bush;
-        for x in 0..rng.range(1, 3) {
-            features[tile_index(x, y)] = TileType::Bush;
-        }
         for x in 0..rng.range(1, 3) {
             features[tile_index(NUM_TILES_X as i32 - 1 - x, y)] = TileType::Bush;
         }
@@ -105,6 +105,7 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
 
     // Add the farmer
     spawns.push(("Farmer".to_string(), 18, 7));
+    features[tile_index(17, 7)] = TileType::Grain;
 
     // Spawn some wolves
     let bottom_left = Point::new(0, NUM_TILES_Y - 1);

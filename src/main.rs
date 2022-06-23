@@ -155,27 +155,23 @@ fn main() {
         .add_system_set(ai_step)
         // The ActionStage processes requested actions and coalesces them into a final
         // decision
-        .add_stage_after(
-            "DecisionStage",
-            "ActionStage",
-            SystemStage::single_threaded(),
-        )
+        .add_stage_after("DecisionStage", "ActionStage", SystemStage::parallel())
         .add_system_set(action_step)
         // The LerpStage handles animations
-        .add_stage_after("ActionStage", "LerpStage", SystemStage::parallel())
+        .add_stage_after("ActionStage", "LerpStage", SystemStage::single_threaded())
         .add_system_set(lerping_step)
         // CleanUp stage runs a miscellany of things that need to happen near the end
         .add_stage_after("LerpStage", "CleanupStage", SystemStage::single_threaded())
         .add_system_set(cleanup_step)
         // The battle system runs next-to-last, since it can delete things
-        .add_stage_after(CoreStage::Update, "battle", SystemStage::single_threaded())
-        .add_system(damage_system)
-        // A final stage for migrating between maps
         .add_stage_after(
-            CoreStage::Update,
-            "migration",
+            CoreStage::PostUpdate,
+            "battle",
             SystemStage::single_threaded(),
         )
+        .add_system(damage_system)
+        // A final stage for migrating between maps
+        .add_stage_after("battle", "migration", SystemStage::single_threaded())
         .add_system_set(migrate_step)
         .run();
 }
@@ -213,7 +209,7 @@ fn setup_game(
 
     // Spawn a map
     let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
-    //let mut region_map = RegionMap::new(MapToBuild::FarmHouse, &rng);
+    //let mut region_map = RegionMap::new(MapToBuild::Cave1, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player

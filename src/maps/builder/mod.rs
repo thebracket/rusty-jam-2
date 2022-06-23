@@ -1,11 +1,14 @@
 use super::{tile_index, TileType};
 use crate::random::Rng;
+mod cave1;
 mod coup;
 mod tom_house;
 
+#[derive(Clone, Copy)]
 pub enum MapToBuild {
     FarmerTomCoup,
     FarmHouse,
+    Cave1,
 }
 
 pub struct MapTransfer {
@@ -17,10 +20,11 @@ pub struct MapTransfer {
     pub spawns: Vec<(String, i32, i32)>,
 }
 
-pub fn builder(map: MapToBuild, rng: &Rng) -> MapTransfer {
+pub fn builder(map: MapToBuild, rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     match map {
-        MapToBuild::FarmerTomCoup => coup::build_farmer_tom_coup(rng),
-        MapToBuild::FarmHouse => tom_house::build_toms_house(rng),
+        MapToBuild::FarmerTomCoup => coup::build_farmer_tom_coup(rng, from),
+        MapToBuild::FarmHouse => tom_house::build_toms_house(rng, from),
+        MapToBuild::Cave1 => cave1::build(rng, from),
     }
 }
 
@@ -29,7 +33,7 @@ fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType
         TileType::HayCart => (3, 2),
         TileType::Barn => (2, 3),
         TileType::LeftButte => (2, 7),
-        TileType::CaveMouth => (6, 3),
+        TileType::CaveMouth => (6, 1),
         _ => (0, 0),
     };
 
