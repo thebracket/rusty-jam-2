@@ -124,6 +124,7 @@ impl RegionMap {
         // Build a map
         let to_build = match new_map {
             1 => MapToBuild::FarmHouse,
+            //2 => MapToBuild::Cave1,
             _ => MapToBuild::FarmerTomCoup,
         };
         let new_data = builder(to_build, rng);

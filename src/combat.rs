@@ -1,7 +1,7 @@
 use crate::{
     actors::{Henry, Player},
     assets::GameAssets,
-    maps::{tile_to_screen, LerpMove, TilePosition},
+    maps::{tile_to_screen, TilePosition},
 };
 use bevy::prelude::*;
 
@@ -77,9 +77,9 @@ pub fn combat_system(
 ) {
     for attack in events.iter() {
         // Remove any Lerping for consistency
-        commands.entity(attack.0).remove::<LerpMove>();
+        /*commands.entity(attack.0).remove::<LerpMove>();
         commands.entity(attack.0).remove::<LerpAttack>();
-        commands.entity(attack.1).remove::<LerpMove>();
+        commands.entity(attack.1).remove::<LerpMove>();*/
 
         // Find positions
         let mut apos = (0, 0);

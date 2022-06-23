@@ -29,6 +29,7 @@ fn spawn_big_feature(x: i32, y: i32, feature: TileType, features: &mut [TileType
         TileType::HayCart => (3, 2),
         TileType::Barn => (2, 3),
         TileType::LeftButte => (2, 7),
+        TileType::CaveMouth => (6, 3),
         _ => (0, 0),
     };
 

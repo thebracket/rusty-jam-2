@@ -15,20 +15,20 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
     for x in 0..NUM_TILES_X as i32 {
         features[tile_index(x, 0)] = TileType::Bush;
         features[tile_index(x, NUM_TILES_Y as i32 - 1)] = TileType::Bush;
-        for y in 0..rng.range(1, 5) {
+        for y in 0..rng.range(1, 3) {
             features[tile_index(x, NUM_TILES_Y as i32 - 1 - y)] = TileType::Bush;
         }
-        for y in 0..rng.range(1, 5) {
+        for y in 0..rng.range(1, 3) {
             features[tile_index(x, y)] = TileType::Bush;
         }
     }
     for y in 0..NUM_TILES_Y as i32 {
         features[tile_index(0, y)] = TileType::Bush;
         features[tile_index(NUM_TILES_X as i32 - 1, y)] = TileType::Bush;
-        for x in 0..rng.range(1, 5) {
+        for x in 0..rng.range(1, 3) {
             features[tile_index(x, y)] = TileType::Bush;
         }
-        for x in 0..rng.range(1, 5) {
+        for x in 0..rng.range(1, 3) {
             features[tile_index(NUM_TILES_X as i32 - 1 - x, y)] = TileType::Bush;
         }
     }
@@ -77,6 +77,15 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
 
     // Add a rocky outcropping
     spawn_big_feature(0, 11, TileType::LeftButte, &mut features);
+
+    // Add a cave mouth
+    spawn_big_feature(25, 0, TileType::CaveMouth, &mut features);
+    //exits.push((tile_index(25, 3), 2));
+    exits.push((tile_index(26, 3), 2));
+    exits.push((tile_index(27, 3), 2));
+    exits.push((tile_index(28, 3), 2));
+    exits.push((tile_index(29, 3), 2));
+    //exits.push((tile_index(30, 3), 2));
 
     // Add some pretty flowers and chickens
     tiles.iter_mut().enumerate().for_each(|(idx, t)| {
