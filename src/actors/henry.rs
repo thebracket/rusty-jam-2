@@ -1,18 +1,13 @@
-use std::collections::HashSet;
-
+use super::{Player, ScaresChickens, Tasty};
 use crate::{
+    ai::{Action, ActionRequest, AnimationSet, Facing},
     assets::GameAssets,
-    combat::{AttackMessage, Health, Hostile, Unconscious},
+    combat::{Health, Hostile, LerpAttack, Unconscious},
     fov::FieldOfView,
     interactions::Interaction,
-    maps::{
-        tile_index, tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y,
-    },
+    maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::prelude::*;
-use bracket_pathfinding::prelude::{DijkstraMap, DistanceAlg, Point};
-
-use super::{Facing, Player, ScaresChickens};
 
 #[derive(Component)]
 pub struct Henry {
@@ -51,8 +46,20 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
         .insert(Health {
             current: 10,
             max: 10,
-        });
-    //.insert(Tasty);
+        })
+        .insert(AnimationSet {
+            animations: vec![
+                // Left
+                vec![56, 57, 58],
+                // Right
+                vec![8, 9, 10],
+                // Up
+                vec![24, 25, 26],
+                // Down
+                vec![72, 73, 74],
+            ],
+        })
+        .insert(Tasty);
 }
 
 pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {
@@ -61,81 +68,43 @@ pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {
     f32::sqrt((dx * dx) + (dy * dy))
 }
 
+pub fn unconscious_henry(
+    mut query: Query<
+        (
+            Entity,
+            &mut Unconscious,
+            &mut Health,
+            &mut TextureAtlasSprite,
+        ),
+        With<Henry>,
+    >,
+    mut commands: Commands,
+) {
+    for (henry, mut unconscious, mut health, mut sprite) in query.iter_mut() {
+        if unconscious.0 == 0 {
+            health.current = health.max;
+            commands.entity(henry).remove::<Unconscious>();
+            sprite.index = 8;
+        } else {
+            unconscious.0 -= 1;
+            sprite.index = 11;
+        }
+    }
+}
+
 pub fn henry_ai(
     mut queries: ParamSet<(
         Query<&TilePosition, With<Player>>,
         Query<
             (Entity, &mut Henry, &TilePosition, &FieldOfView),
-            (Without<LerpMove>, Without<Unconscious>),
+            (Without<LerpMove>, Without<LerpAttack>, Without<Unconscious>),
         >,
         Query<(Entity, &TilePosition), (With<Hostile>, Without<Unconscious>)>,
     )>,
     map: Res<RegionMap>,
-    mut commands: Commands,
-    mut attack: EventWriter<AttackMessage>,
+    mut actions: EventWriter<ActionRequest>,
 ) {
     let player_pos = queries.p0().single().clone();
-    {
-        // This is a borrow-checker fighting mess
-        let (hpos, henry_entity, fov_set) = if let Ok(hq) = queries.p1().get_single() {
-            let hpos = (hq.2.x, hq.2.y);
-            let henry_entity = hq.0.clone();
-            (hpos, Some(henry_entity), hq.3.fov_set.clone())
-        } else {
-            ((0, 0), None, HashSet::new())
-        };
-
-        // Combat Henry
-        queries.p2().iter().for_each(|(e, tpos)| {
-            if DistanceAlg::Pythagoras
-                .distance2d(Point::new(hpos.0, hpos.1), Point::new(tpos.x, tpos.y))
-                < 1.2
-            {
-                attack.send(AttackMessage(henry_entity.unwrap(), e));
-                return;
-            }
-        });
-
-        // Check for things to chase
-        let mut delta = None;
-        if !fov_set.is_empty() {
-            let mut starts = Vec::new();
-            for (_, epos) in queries.p2().iter() {
-                let pt = Point::new(epos.x, epos.y);
-                if fov_set.contains(&pt) {
-                    starts.push(tile_index(pt.x, pt.y));
-                }
-                if !starts.is_empty() {
-                    let scary_map = DijkstraMap::new(NUM_TILES_X, NUM_TILES_Y, &starts, &*map, 9.0);
-                    if let Some(exit) =
-                        DijkstraMap::find_lowest_exit(&scary_map, tile_index(hpos.0, hpos.1), &*map)
-                    {
-                        let x = (exit % NUM_TILES_X) as i32;
-                        let y = (exit / NUM_TILES_X) as i32;
-                        delta = Some((x - hpos.0, y - hpos.1));
-                    }
-                }
-            }
-        }
-
-        if let Some(delta) = delta {
-            let destination = (
-                (hpos.0 + delta.0).clamp(0, NUM_TILES_X as i32 - 1),
-                (hpos.1 + delta.1).clamp(0, NUM_TILES_Y as i32 - 1),
-            );
-            if map.can_player_enter(destination.0, destination.1) {
-                commands.entity(henry_entity.unwrap()).insert(LerpMove {
-                    start: (hpos.0, hpos.1),
-                    end: destination,
-                    step: 0,
-                    jumping: false,
-                    animate: None,
-                });
-            }
-        }
-    }
-
-    // Normal Henry
     for (entity, mut henry, henry_pos, _) in queries.p1().iter_mut() {
         let distance = distance(&henry_pos, &player_pos);
         if distance > 1.6 {
@@ -182,17 +151,14 @@ pub fn henry_ai(
                     (y + delta.1).clamp(0, NUM_TILES_Y as i32 - 1),
                 );
                 if map.can_player_enter(destination.0, destination.1) {
-                    commands.entity(entity).insert(LerpMove {
-                        start: (x, y),
-                        end: destination,
-                        step: 0,
-                        jumping,
-                        animate: match henry.facing {
-                            Facing::Left => Some(vec![56, 57, 58]),
-                            Facing::Right => Some(vec![8, 9, 10]),
-                            Facing::Up => Some(vec![24, 25, 26]),
-                            Facing::Down => Some(vec![72, 73, 74]),
+                    actions.send(ActionRequest {
+                        entity,
+                        action: Action::Move {
+                            from: (henry_pos.x, henry_pos.y),
+                            to: destination,
+                            jumping,
                         },
+                        priority: 1,
                     });
                 }
             }

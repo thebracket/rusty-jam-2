@@ -75,11 +75,12 @@ impl TileType {
                 ],
             )),
             TileType::CaveMouth => Some((
-                6, 3,
-                vec![ 146, 147, 148, 149, 150, 151,
-                      162, 163, 164, 165, 166, 167,
-                      178, 179, 180, 181, 182, 183,
-                ]
+                6,
+                3,
+                vec![
+                    146, 147, 148, 149, 150, 151, 162, 163, 164, 165, 166, 167, 178, 179, 180, 181,
+                    182, 183,
+                ],
             )),
             _ => None,
         }
@@ -91,7 +92,7 @@ impl TileType {
             | TileType::FenceVertical
             | TileType::Bush
             | TileType::HayCart
-            | TileType::Barn 
+            | TileType::Barn
             | TileType::Anvil => false,
             TileType::LeftButte => false,
             TileType::CaveMouth => false,

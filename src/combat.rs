@@ -17,9 +17,10 @@ pub struct PlayerHealthLabel;
 #[derive(Component)]
 pub struct Hostile;
 
-pub struct AttackMessage(pub Entity, pub Entity);
-
-pub struct DamageMessage(pub Entity);
+pub struct DamageMessage {
+    pub from: Entity,
+    pub to: Entity,
+}
 
 pub fn setup_health_hud(commands: &mut Commands, assets: &GameAssets) {
     commands
@@ -56,9 +57,9 @@ pub fn setup_health_hud(commands: &mut Commands, assets: &GameAssets) {
 pub fn update_health_hud(
     mut health_hud: Query<&mut Text, With<PlayerHealthLabel>>,
     player_health: Query<&Health, With<Player>>,
-    //henry_health: Query<&Health, With<Henry>>,
+    henry_health: Query<&Health, With<Henry>>,
 ) {
-    //let henry = henry_health.get_single();
+    let henry = henry_health.get_single();
     let player = player_health.get_single();
 
     for mut txt in health_hud.iter_mut() {
@@ -66,48 +67,19 @@ pub fn update_health_hud(
         if let Ok(player) = player {
             new_text += &format!("You: {}/{}", player.current, player.max);
         }
-        txt.sections[0].value = new_text;
-    }
-}
-
-pub fn combat_system(
-    mut events: EventReader<AttackMessage>,
-    mut commands: Commands,
-    pos_query: Query<(Entity, &TilePosition)>,
-) {
-    for attack in events.iter() {
-        // Remove any Lerping for consistency
-        /*commands.entity(attack.0).remove::<LerpMove>();
-        commands.entity(attack.0).remove::<LerpAttack>();
-        commands.entity(attack.1).remove::<LerpMove>();*/
-
-        // Find positions
-        let mut apos = (0, 0);
-        let mut tpos = (0, 0);
-        for (te, pos) in pos_query.iter() {
-            if te == attack.0 {
-                apos = (pos.x, pos.y);
-            } else if te == attack.1 {
-                tpos = (pos.x, pos.y);
-            }
+        if let Ok(henry) = henry {
+            new_text += &format!("\nHenry: {}/{}", henry.current, henry.max);
         }
-
-        // Insert the attack lerp
-        commands.entity(attack.0).insert(LerpAttack {
-            target: attack.1,
-            start: (apos.0, apos.1),
-            end: (tpos.0, tpos.1),
-            step: 0,
-        });
+        txt.sections[0].value = new_text;
     }
 }
 
 #[derive(Component)]
 pub struct LerpAttack {
-    target: Entity,
-    start: (i32, i32),
-    end: (i32, i32),
-    step: u32,
+    pub target: Entity,
+    pub start: (i32, i32),
+    pub end: (i32, i32),
+    pub step: u32,
 }
 
 pub fn combat_lerp(
@@ -125,7 +97,10 @@ pub fn combat_lerp(
         trans.translation.y = start.1 + (step.1 * lerp.step as f32);
 
         if lerp.step > 3 {
-            damage.send(DamageMessage(lerp.target));
+            damage.send(DamageMessage {
+                from: entity,
+                to: lerp.target,
+            });
             let tts = tile_to_screen(pos.x, pos.y);
             trans.translation = Vec3::new(tts.0, tts.1, trans.translation.z);
             commands.entity(entity).remove::<LerpAttack>();
@@ -134,21 +109,24 @@ pub fn combat_lerp(
 }
 
 #[derive(Component)]
-pub struct Unconscious;
+pub struct Unconscious(pub u32);
 
 pub fn damage_system(
     mut events: EventReader<DamageMessage>,
     mut commands: Commands,
     mut query: Query<(Entity, &mut Health, Option<&Henry>, Option<&Player>)>,
+    mut growth: Query<(Entity, &mut Transform)>,
 ) {
+    let mut killers = Vec::new();
     for damage in events.iter() {
         for (e, mut health, henry, player) in query.iter_mut() {
-            if e == damage.0 {
+            if e == damage.to {
                 health.current -= 1;
                 if health.current < 1 {
+                    killers.push(damage.from);
                     if henry.is_some() {
                         // Knock poor Henry out
-                        //commands.entity(e).insert(Unconscious);
+                        commands.entity(e).insert(Unconscious(1000));
                         health.current = health.max;
                     } else if player.is_some() {
                         // End the game
@@ -156,6 +134,14 @@ pub fn damage_system(
                         commands.entity(e).despawn();
                     }
                 }
+            }
+        }
+    }
+
+    if !killers.is_empty() {
+        for (entity, mut trans) in growth.iter_mut() {
+            if killers.contains(&entity) {
+                trans.scale += 0.1;
             }
         }
     }

@@ -1,20 +1,12 @@
+use super::Tasty;
 use crate::{
+    ai::{Action, ActionRequest, AnimationSet, Facing},
     assets::GameAssets,
     combat::Health,
     maps::RegionMap,
     maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
 };
 use bevy::prelude::*;
-
-use super::Tasty;
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum Facing {
-    Left,
-    Right,
-    Up,
-    Down,
-}
 
 #[derive(Component)]
 pub struct Player {
@@ -41,7 +33,19 @@ pub fn spawn_player(commands: &mut Commands, assets: &GameAssets, start: (i32, i
             current: 10,
             max: 10,
         })
-        .insert(Tasty);
+        .insert(Tasty)
+        .insert(AnimationSet {
+            animations: vec![
+                // Left
+                vec![12, 13, 14, 15, 16, 17],
+                // Right
+                vec![0, 1, 2, 3, 4, 5],
+                // Up
+                vec![6, 7, 8, 9, 10, 11],
+                // Down
+                vec![18, 19, 20, 21, 22, 23],
+            ],
+        });
 }
 
 pub fn player_movement(
@@ -51,7 +55,7 @@ pub fn player_movement(
     >,
     keyboard: Res<Input<KeyCode>>,
     map: Res<RegionMap>,
-    mut commands: Commands,
+    mut actions: EventWriter<ActionRequest>,
 ) {
     for (entity, mut player, tile_pos, mut sprite) in player.iter_mut() {
         let mut jumping = false;
@@ -92,17 +96,14 @@ pub fn player_movement(
                 (tile_pos.y + delta.1).clamp(0, NUM_TILES_Y as i32 - 1),
             );
             if map.can_player_enter(destination.0, destination.1) {
-                commands.entity(entity).insert(LerpMove {
-                    start: (tile_pos.x, tile_pos.y),
-                    end: destination,
-                    step: 0,
-                    jumping,
-                    animate: match player.facing {
-                        Facing::Left => Some(vec![12, 13, 14, 15, 16, 17]),
-                        Facing::Right => Some(vec![0, 1, 2, 3, 4, 5]),
-                        Facing::Up => Some(vec![6, 7, 8, 9, 10, 11]),
-                        Facing::Down => Some(vec![18, 19, 20, 21, 22, 23]),
+                actions.send(ActionRequest {
+                    entity,
+                    action: Action::Move {
+                        from: (tile_pos.x, tile_pos.y),
+                        to: destination,
+                        jumping,
                     },
+                    priority: 1,
                 });
             }
         }

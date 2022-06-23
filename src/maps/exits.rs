@@ -1,6 +1,7 @@
 use super::{tile_index, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y};
 use crate::{
-    actors::{Facing, Henry, Player},
+    actors::{Henry, Player},
+    ai::Facing,
     assets::GameAssets,
     random::Rng,
 };
