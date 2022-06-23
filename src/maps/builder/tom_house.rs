@@ -83,10 +83,10 @@ pub fn build_toms_house(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     // Add a cave mouth
     spawn_big_feature(25, 0, TileType::CaveMouth, &mut features);
     //exits.push((tile_index(25, 3), 2));
-    exits.push((tile_index(26, 3), 2));
-    exits.push((tile_index(27, 3), 2));
-    exits.push((tile_index(28, 3), 2));
-    exits.push((tile_index(29, 3), 2));
+    exits.push((tile_index(26, 1), 2));
+    exits.push((tile_index(27, 1), 2));
+    exits.push((tile_index(28, 1), 2));
+    exits.push((tile_index(29, 1), 2));
     //exits.push((tile_index(30, 3), 2));
 
     // Add some pretty flowers and chickens

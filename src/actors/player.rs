@@ -4,8 +4,10 @@ use crate::{
     assets::GameAssets,
     combat::Health,
     maps::RegionMap,
-    maps::{tile_to_screen, LerpMove, TilePosition, NUM_TILES_X, NUM_TILES_Y},
-    GameElement,
+    maps::{
+        tile_index, tile_to_screen, LerpMove, TilePosition, TileType, NUM_TILES_X, NUM_TILES_Y,
+    },
+    GameElement, GameState,
 };
 use bevy::prelude::*;
 
@@ -58,6 +60,7 @@ pub fn player_movement(
     keyboard: Res<Input<KeyCode>>,
     map: Res<RegionMap>,
     mut actions: EventWriter<ActionRequest>,
+    mut state: ResMut<State<GameState>>,
 ) {
     for (entity, mut player, tile_pos, mut sprite) in player.iter_mut() {
         let mut jumping = false;
@@ -98,15 +101,19 @@ pub fn player_movement(
                 (tile_pos.y + delta.1).clamp(0, NUM_TILES_Y as i32 - 1),
             );
             if map.can_player_enter(destination.0, destination.1) {
-                actions.send(ActionRequest {
-                    entity,
-                    action: Action::Move {
-                        from: (tile_pos.x, tile_pos.y),
-                        to: destination,
-                        jumping,
-                    },
-                    priority: 1,
-                });
+                if map.features[tile_index(destination.0, destination.1)] == TileType::GoldEgg {
+                    let _ = state.set(GameState::Won);
+                } else {
+                    actions.send(ActionRequest {
+                        entity,
+                        action: Action::Move {
+                            from: (tile_pos.x, tile_pos.y),
+                            to: destination,
+                            jumping,
+                        },
+                        priority: 1,
+                    });
+                }
             }
         }
     }

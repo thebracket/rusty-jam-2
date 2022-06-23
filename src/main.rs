@@ -1,6 +1,6 @@
 use actors::{
-    chicken_ai, henry_ai, player_movement, spawn_henry, spawn_player, unconscious_henry, Chicken,
-    Farmer, Henry, Player, ScaresChickens, Tasty, Wolf,
+    chicken_ai, henry_ai, player_movement, spawn_henry, spawn_player, spike_system,
+    unconscious_henry, Chicken, Farmer, Henry, Player, ScaresChickens, Tasty, Wolf,
 };
 use ai::{attacks, chase_after, flee_from, process_actions, ActionRequest};
 use assets::GameAssets;
@@ -28,6 +28,7 @@ pub enum GameState {
     MainMenu,
     Playing,
     Dead,
+    Won,
 }
 
 // Bevy has a bug! When you on_update for a specific state AND have a timestep,
@@ -66,6 +67,17 @@ fn main() {
 
     let dead_step = SystemSet::on_update(GameState::Dead).with_system(dead_menu);
 
+    // Won Menu
+    let setup_won_step = SystemSet::on_enter(GameState::Won)
+        .label("GameSetup")
+        .with_system(start_won_menu);
+
+    let exit_won_step = SystemSet::on_exit(GameState::Won)
+        .label("GameSetup")
+        .with_system(exit_won_menu);
+
+    let won_step = SystemSet::on_update(GameState::Won).with_system(won_menu);
+
     // Step to initialize game resources
     let setup_step = SystemSet::on_enter(GameState::Playing)
         .label("GameSetup")
@@ -96,6 +108,7 @@ fn main() {
         .with_system(henry_ai)
         .with_system(unconscious_henry)
         // Killing things
+        .with_system(spike_system)
         .with_system(attacks::<Wolf, Tasty>)
         .with_system(attacks::<Henry, Hostile>)
         .with_system(attacks::<Player, Hostile>); // Auto attack mode
@@ -145,6 +158,10 @@ fn main() {
         .add_system_set(setup_dead_step)
         .add_system_set(exit_dead_step)
         .add_system_set(dead_step)
+        // Won Menu
+        .add_system_set(setup_won_step)
+        .add_system_set(exit_won_step)
+        .add_system_set(won_step)
         // Game Initialization
         .add_system_set(setup_step)
         .add_system_set(game_over_step)
@@ -209,7 +226,7 @@ fn setup_game(
 
     // Spawn a map
     let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
-    //let mut region_map = RegionMap::new(MapToBuild::Cave1, &rng);
+    //let mut region_map = RegionMap::new(MapToBuild::Cave2, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player
@@ -268,5 +285,24 @@ fn dead_menu(keyboard: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>)
 }
 
 fn exit_dead_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
+    query.iter().for_each(|e| commands.entity(e).despawn());
+}
+
+fn start_won_menu(mut commands: Commands, assets: Res<GameAssets>) {
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: assets.won_menu.clone(),
+            ..default()
+        })
+        .insert(MainMenu);
+}
+
+fn won_menu(keyboard: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
+    if keyboard.just_pressed(KeyCode::P) {
+        state.set(GameState::Playing).unwrap();
+    }
+}
+
+fn exit_won_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
     query.iter().for_each(|e| commands.entity(e).despawn());
 }

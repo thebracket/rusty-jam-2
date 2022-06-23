@@ -20,7 +20,7 @@ pub struct PlayerHealthLabel;
 pub struct Hostile;
 
 pub struct DamageMessage {
-    pub from: Entity,
+    pub from: Option<Entity>,
     pub to: Entity,
 }
 
@@ -105,7 +105,7 @@ pub fn combat_lerp(
 
         if lerp.step > 3 {
             damage.send(DamageMessage {
-                from: entity,
+                from: Some(entity),
                 to: lerp.target,
             });
             let tts = tile_to_screen(pos.x, pos.y);
@@ -134,10 +134,12 @@ pub fn damage_system(
             if e == damage.to {
                 health.current -= 1;
                 if health.current < 1 {
-                    killers.push(damage.from);
+                    if let Some(from) = damage.from {
+                        killers.push(from);
+                    }
                     if henry.is_some() {
                         // Knock poor Henry out
-                        commands.entity(e).insert(Unconscious(300));
+                        commands.entity(e).insert(Unconscious(30));
                         health.current = health.max;
                     } else if player.is_some() {
                         // End the game
@@ -154,7 +156,7 @@ pub fn damage_system(
     if !killers.is_empty() {
         for (entity, mut trans, mut health) in queries.p1().iter_mut() {
             if killers.contains(&entity) {
-                trans.scale += 0.1;
+                trans.scale += 0.05;
                 health.max += 1;
             }
         }

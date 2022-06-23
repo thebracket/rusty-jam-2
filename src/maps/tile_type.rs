@@ -30,6 +30,8 @@ pub enum TileType {
     CaveFloor,
     Water,
     Grain,
+    Fire,
+    GoldEgg,
 }
 
 impl TileType {
@@ -48,6 +50,8 @@ impl TileType {
             TileType::CaveFloor => 9,
             TileType::Water => 10,
             TileType::Grain => 11,
+            TileType::Fire => 12,
+            TileType::GoldEgg => 13,
             TileType::CobbleTL => 19,
             TileType::CobbleT => 20,
             TileType::CobbleTR => 21,
@@ -99,10 +103,10 @@ impl TileType {
             | TileType::Bush
             | TileType::HayCart
             | TileType::Barn
-            | TileType::Anvil => false,
-            TileType::LeftButte => false,
-            TileType::CaveMouth => false,
-            TileType::Water => false,
+            | TileType::Anvil
+            | TileType::CaveMouth
+            | TileType::Water
+            | TileType::Fire => false,
             _ => true,
         }
     }

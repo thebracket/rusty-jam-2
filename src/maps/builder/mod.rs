@@ -1,6 +1,7 @@
 use super::{tile_index, TileType};
 use crate::random::Rng;
 mod cave1;
+mod cave2;
 mod coup;
 mod tom_house;
 
@@ -9,6 +10,7 @@ pub enum MapToBuild {
     FarmerTomCoup,
     FarmHouse,
     Cave1,
+    Cave2,
 }
 
 pub struct MapTransfer {
@@ -25,6 +27,7 @@ pub fn builder(map: MapToBuild, rng: &Rng, from: Option<MapToBuild>) -> MapTrans
         MapToBuild::FarmerTomCoup => coup::build_farmer_tom_coup(rng, from),
         MapToBuild::FarmHouse => tom_house::build_toms_house(rng, from),
         MapToBuild::Cave1 => cave1::build(rng, from),
+        MapToBuild::Cave2 => cave2::build(rng, from),
     }
 }
 
