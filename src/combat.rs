@@ -135,7 +135,7 @@ pub fn damage_system(
                     killers.push(damage.from);
                     if henry.is_some() {
                         // Knock poor Henry out
-                        commands.entity(e).insert(Unconscious(1000));
+                        commands.entity(e).insert(Unconscious(300));
                         health.current = health.max;
                     } else if player.is_some() {
                         // End the game

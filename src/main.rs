@@ -97,7 +97,8 @@ fn main() {
         .with_system(unconscious_henry)
         // Killing things
         .with_system(attacks::<Wolf, Tasty>)
-        .with_system(attacks::<Henry, Hostile>);
+        .with_system(attacks::<Henry, Hostile>)
+        .with_system(attacks::<Player, Hostile>); // Auto attack mode
 
     let action_step = SystemSet::on_update(GameState::Playing)
         .label("ActionStep")

@@ -1,3 +1,5 @@
+use bracket_pathfinding::prelude::{Point, DistanceAlg};
+
 use super::{spawn_big_feature, MapTransfer};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
@@ -103,6 +105,31 @@ pub fn build_toms_house(rng: &Rng) -> MapTransfer {
 
     // Add the farmer
     spawns.push(("Farmer".to_string(), 18, 7));
+
+    // Spawn some wolves
+    let bottom_left = Point::new(0, NUM_TILES_Y - 1);
+    let mut candidates: Vec<(usize, f32)> = tiles
+        .iter()
+        .enumerate()
+        .filter(|(idx, t)| **t == TileType::Grass && features[*idx] == TileType::None)
+        .map(|(idx, _)| {
+            (
+                idx,
+                DistanceAlg::Pythagoras.distance2d(
+                    Point::new((idx % NUM_TILES_X) as i32, (idx / NUM_TILES_X) as i32),
+                    bottom_left,
+                ),
+            )
+        })
+        .collect();
+    candidates.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    for i in 0..usize::min(candidates.len() - 1, 5) {
+        spawns.push((
+            "WeakWolf".to_string(),
+            (candidates[i].0 % NUM_TILES_X) as i32,
+            (candidates[i].0 / NUM_TILES_X) as i32,
+        ));
+    }
 
     MapTransfer {
         tiles,

@@ -27,6 +27,7 @@ pub fn process_actions(
     mut actions: EventReader<ActionRequest>,
     mut commands: Commands,
     animation_query: Query<(Entity, &AnimationSet)>,
+    exists_query: Query<Entity>,
 ) {
     let mut final_action: HashMap<Entity, ActionRequest> = HashMap::new();
     for action in actions.iter() {
@@ -55,21 +56,29 @@ pub fn process_actions(
                     Facing::Left
                 };
 
-                commands.entity(*entity).insert(LerpMove {
-                    start: from,
-                    end: to,
-                    step: 0,
-                    jumping,
-                    animate: find_animation(&animation_query, *entity, &direction),
-                });
+                for e in exists_query.iter() {
+                    if e == *entity {
+                        commands.entity(*entity).insert(LerpMove {
+                            start: from,
+                            end: to,
+                            step: 0,
+                            jumping,
+                            animate: find_animation(&animation_query, *entity, &direction),
+                        });
+                    }
+                }
             }
             Action::WantsToAttack { from, to, target } => {
-                commands.entity(action.entity).insert(LerpAttack {
-                    target,
-                    start: from,
-                    end: to,
-                    step: 0,
-                });
+                for e in exists_query.iter() {
+                    if e == *entity {
+                        commands.entity(action.entity).insert(LerpAttack {
+                            target,
+                            start: from,
+                            end: to,
+                            step: 0,
+                        });
+                    }
+                }
             }
         }
     }
