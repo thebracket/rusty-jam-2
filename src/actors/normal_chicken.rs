@@ -6,6 +6,7 @@ use crate::{
     interactions::Interaction,
     maps::{tile_to_screen, LerpMove, MapElement, RegionMap, TilePosition},
     random::Rng,
+    TimeStepResource,
 };
 use bevy::prelude::*;
 
@@ -49,7 +50,11 @@ pub fn chicken_ai(
     >,
     rng: Res<Rng>,
     mut actions: EventWriter<ActionRequest>,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     let mut delta = None;
     for (entity, pos, mut sprite) in ai_query.iter_mut() {
         // Do chicken things

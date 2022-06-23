@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use crate::maps::{RegionMap, TilePosition};
+use crate::{
+    maps::{RegionMap, TilePosition},
+    TimeStepResource,
+};
 use bevy::prelude::*;
 use bracket_pathfinding::prelude::{field_of_view_set, Point};
 
@@ -25,7 +28,11 @@ pub fn update_field_of_view(
         Or<(Changed<TilePosition>, Added<TilePosition>)>,
     >,
     map: Res<RegionMap>,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     for (mut fov, pos) in fov_query.iter_mut() {
         fov.fov_set = field_of_view_set(Point::new(pos.x, pos.y), fov.range, &*map);
     }

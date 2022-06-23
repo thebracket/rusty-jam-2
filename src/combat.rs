@@ -2,6 +2,7 @@ use crate::{
     actors::{Henry, Player},
     assets::GameAssets,
     maps::{tile_to_screen, TilePosition},
+    TimeStepResource,
 };
 use bevy::prelude::*;
 
@@ -86,7 +87,11 @@ pub fn combat_lerp(
     mut query: Query<(Entity, &TilePosition, &mut LerpAttack, &mut Transform)>,
     mut commands: Commands,
     mut damage: EventWriter<DamageMessage>,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     for (entity, pos, mut lerp, mut trans) in query.iter_mut() {
         lerp.step += 1;
         let start = tile_to_screen(lerp.start.0, lerp.start.1);

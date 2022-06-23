@@ -8,6 +8,7 @@ pub struct GameAssets {
     pub doggies: Handle<TextureAtlas>,
     pub chick: Handle<TextureAtlas>,
     pub tom: Handle<Image>,
+    pub main_menu: Handle<Image>,
 }
 
 impl GameAssets {
@@ -43,6 +44,7 @@ impl GameAssets {
             doggies: dog_atlas_handle,
             chick: chick_atlas_handle,
             tom: asset_server.load("tom.png"),
+            main_menu: asset_server.load("MainMenu.png"),
         }
     }
 }

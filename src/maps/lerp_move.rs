@@ -1,3 +1,5 @@
+use crate::TimeStepResource;
+
 use super::{tile_to_screen, TilePosition};
 use bevy::prelude::*;
 
@@ -31,7 +33,11 @@ pub fn tile_lerp(
         Option<&mut TextureAtlasSprite>,
     )>,
     mut commands: Commands,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     for (entity, mut lerp, mut pos, mut trans, mut sprite) in query.iter_mut() {
         lerp.step += 1;
 

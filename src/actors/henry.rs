@@ -6,6 +6,7 @@ use crate::{
     fov::FieldOfView,
     interactions::Interaction,
     maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    TimeStepResource,
 };
 use bevy::prelude::*;
 
@@ -79,7 +80,11 @@ pub fn unconscious_henry(
         With<Henry>,
     >,
     mut commands: Commands,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     for (henry, mut unconscious, mut health, mut sprite) in query.iter_mut() {
         if unconscious.0 == 0 {
             health.current = health.max;
@@ -103,7 +108,11 @@ pub fn henry_ai(
     )>,
     map: Res<RegionMap>,
     mut actions: EventWriter<ActionRequest>,
+    timer: Res<TimeStepResource>,
 ) {
+    if !timer.timer.finished() {
+        return;
+    }
     let player_pos = queries.p0().single().clone();
     for (entity, mut henry, henry_pos, _) in queries.p1().iter_mut() {
         let distance = distance(&henry_pos, &player_pos);

@@ -2,6 +2,7 @@ use super::ActionRequest;
 use crate::{
     combat::{LerpAttack, Unconscious},
     maps::{LerpMove, TilePosition},
+    TimeStepResource,
 };
 use bevy::prelude::*;
 use bracket_pathfinding::prelude::{DistanceAlg, Point};
@@ -16,10 +17,14 @@ pub fn attacks<TYPE, TARGET>(
     >,
     them: Query<(Entity, &TilePosition), (With<TARGET>, Without<Unconscious>)>,
     mut actions: EventWriter<ActionRequest>,
+    timer: Res<TimeStepResource>,
 ) where
     TYPE: Component,
     TARGET: Component,
 {
+    if !timer.timer.finished() {
+        return;
+    }
     for (entity, my_pos) in me.iter() {
         let my_point = Point::new(my_pos.x, my_pos.y);
         for (target, their_pos) in them.iter() {

@@ -2,6 +2,7 @@ use crate::{
     combat::{LerpAttack, Unconscious},
     fov::FieldOfView,
     maps::{tile_index, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
+    TimeStepResource,
 };
 use bevy::prelude::*;
 use bracket_pathfinding::prelude::{DijkstraMap, Point};
@@ -21,10 +22,14 @@ pub fn chase_after<TYPE, TARGET>(
     target_query: Query<&TilePosition, (With<TARGET>, Without<Unconscious>)>,
     map: Res<RegionMap>,
     mut actions: EventWriter<ActionRequest>,
+    timer: Res<TimeStepResource>,
 ) where
     TARGET: Component,
     TYPE: Component,
 {
+    if !timer.timer.finished() {
+        return;
+    }
     for (entity, pos, fov) in ai_query.iter() {
         if !fov.fov_set.is_empty() {
             let mut starts = Vec::new();

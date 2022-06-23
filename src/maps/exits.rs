@@ -1,11 +1,12 @@
 use super::{tile_index, LerpMove, MapElement, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y};
 use crate::{
     actors::{Henry, Player},
-    ai::Facing,
+    ai::{ActionRequest, Facing},
     assets::GameAssets,
+    combat::DamageMessage,
     random::Rng,
 };
-use bevy::prelude::*;
+use bevy::{ecs::event::Events, prelude::*};
 
 pub fn map_exits(
     mut map: ResMut<RegionMap>,
@@ -19,7 +20,10 @@ pub fn map_exits(
     assets: Res<GameAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     rng: Res<Rng>,
+    mut events: ResMut<Events<ActionRequest>>,
+    mut damage: ResMut<Events<DamageMessage>>,
 ) {
+    // Clear the events queue
     let mut transition = None;
     for player_pos in queries.p0().iter() {
         let player_idx = tile_index(player_pos.x, player_pos.y);
@@ -31,6 +35,9 @@ pub fn map_exits(
     }
 
     if let Some(new_map) = transition {
+        events.clear();
+        damage.clear();
+
         map.transition_to(
             new_map,
             &mut commands,
