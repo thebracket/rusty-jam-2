@@ -24,9 +24,10 @@ mod maps;
 mod random;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum GameState {
+pub enum GameState {
     MainMenu,
     Playing,
+    Dead,
 }
 
 // Bevy has a bug! When you on_update for a specific state AND have a timestep,
@@ -39,7 +40,11 @@ fn time_step_update(time: Res<Time>, mut timestep: ResMut<TimeStepResource>) {
     timestep.timer.tick(time.delta());
 }
 
+#[derive(Component)]
+pub struct GameElement;
+
 fn main() {
+    // Main Menu
     let setup_menu_step = SystemSet::on_enter(GameState::MainMenu)
         .label("GameSetup")
         .with_system(start_main_menu);
@@ -50,10 +55,24 @@ fn main() {
 
     let menu_step = SystemSet::on_update(GameState::MainMenu).with_system(main_menu);
 
+    // Dead Menu
+    let setup_dead_step = SystemSet::on_enter(GameState::Dead)
+        .label("GameSetup")
+        .with_system(start_dead_menu);
+
+    let exit_dead_step = SystemSet::on_exit(GameState::Dead)
+        .label("GameSetup")
+        .with_system(exit_dead_menu);
+
+    let dead_step = SystemSet::on_update(GameState::Dead).with_system(dead_menu);
+
     // Step to initialize game resources
     let setup_step = SystemSet::on_enter(GameState::Playing)
         .label("GameSetup")
         .with_system(setup_game);
+    let game_over_step = SystemSet::on_exit(GameState::Playing)
+        .label("GameOverMan")
+        .with_system(game_over);
 
     // The input step handles all direct player interaction
     let input_step = SystemSet::on_update(GameState::Playing)
@@ -117,10 +136,17 @@ fn main() {
         .add_event::<ActionRequest>()
         .add_event::<DamageMessage>()
         .add_startup_system(setup)
+        // Main Menu
         .add_system_set(setup_menu_step)
         .add_system_set(exit_menu_step)
         .add_system_set(menu_step)
+        // Dead Menu
+        .add_system_set(setup_dead_step)
+        .add_system_set(exit_dead_step)
+        .add_system_set(dead_step)
+        // Game Initialization
         .add_system_set(setup_step)
+        .add_system_set(game_over_step)
         // The decision stage runs player input and game AI
         // It just emits messages, nothing changes
         .add_stage("DecisionStage", SystemStage::parallel())
@@ -222,5 +248,28 @@ fn main_menu(keyboard: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>)
 }
 
 fn exit_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
+    query.iter().for_each(|e| commands.entity(e).despawn());
+}
+
+fn game_over(mut commands: Commands, query: Query<Entity, With<GameElement>>) {
+    query.iter().for_each(|e| commands.entity(e).despawn());
+}
+
+fn start_dead_menu(mut commands: Commands, assets: Res<GameAssets>) {
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: assets.dead_menu.clone(),
+            ..default()
+        })
+        .insert(MainMenu);
+}
+
+fn dead_menu(keyboard: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
+    if keyboard.just_pressed(KeyCode::P) {
+        state.set(GameState::Playing).unwrap();
+    }
+}
+
+fn exit_dead_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
     query.iter().for_each(|e| commands.entity(e).despawn());
 }

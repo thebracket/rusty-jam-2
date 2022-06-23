@@ -1,4 +1,4 @@
-use crate::assets::GameAssets;
+use crate::{assets::GameAssets, GameElement};
 use bevy::prelude::*;
 use std::sync::Mutex;
 
@@ -85,7 +85,8 @@ pub fn console_setup(assets: &GameAssets, commands: &mut Commands, console: &Con
                 ),
                 ..default()
             })
-            .insert(ConsoleLine(i));
+            .insert(ConsoleLine(i))
+            .insert(GameElement);
     }
 }
 

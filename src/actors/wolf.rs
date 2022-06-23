@@ -5,6 +5,7 @@ use crate::{
     combat::{Health, Hostile},
     fov::FieldOfView,
     maps::{tile_to_screen, MapElement, TilePosition},
+    GameElement,
 };
 use bevy::prelude::*;
 
@@ -45,5 +46,6 @@ pub fn spawn_wolf(x: i32, y: i32, health: i32, assets: &GameAssets, commands: &m
                 // Down
                 vec![76, 77, 78],
             ],
-        });
+        })
+        .insert(GameElement);
 }

@@ -7,6 +7,7 @@ use crate::{
     fov::FieldOfView,
     interactions::Interaction,
     maps::{tile_to_screen, MapElement, TilePosition},
+    GameElement,
 };
 
 #[derive(Component)]
@@ -42,5 +43,6 @@ pub fn spawn_farmer(x: i32, y: i32, assets: &GameAssets, commands: &mut Commands
         .insert(FieldOfView::new(8))
         .insert(MapElement)
         .insert(Health { current: 3, max: 3 })
-        .insert(Tasty); // Don't persist chickens between levels
+        .insert(Tasty)
+        .insert(GameElement); // Don't persist chickens between levels
 }

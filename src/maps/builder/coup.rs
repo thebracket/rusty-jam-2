@@ -75,7 +75,7 @@ pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
         }
     }
 
-    // Spawn a wolf
+    // Spawn some wolves
     let bottom_left = Point::new(0, NUM_TILES_Y - 1);
     let mut candidates: Vec<(usize, f32)> = tiles
         .iter()
@@ -92,11 +92,13 @@ pub fn build_farmer_tom_coup(rng: &Rng) -> MapTransfer {
         })
         .collect();
     candidates.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-    spawns.push((
-        "WeakWolf".to_string(),
-        (candidates[0].0 % NUM_TILES_X) as i32,
-        (candidates[0].0 / NUM_TILES_X) as i32,
-    ));
+    for i in 0..usize::min(candidates.len() - 1, 5) {
+        spawns.push((
+            "WeakWolf".to_string(),
+            (candidates[i].0 % NUM_TILES_X) as i32,
+            (candidates[i].0 / NUM_TILES_X) as i32,
+        ));
+    }
 
     MapTransfer {
         tiles,

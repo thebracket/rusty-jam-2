@@ -6,7 +6,7 @@ use crate::{
     fov::FieldOfView,
     interactions::Interaction,
     maps::{tile_to_screen, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
-    TimeStepResource,
+    GameElement, TimeStepResource,
 };
 use bevy::prelude::*;
 
@@ -60,7 +60,8 @@ pub fn spawn_henry(commands: &mut Commands, assets: &GameAssets, start: (i32, i3
                 vec![72, 73, 74],
             ],
         })
-        .insert(Tasty);
+        .insert(Tasty)
+        .insert(GameElement);
 }
 
 pub fn distance(pos1: &TilePosition, pos2: &TilePosition) -> f32 {

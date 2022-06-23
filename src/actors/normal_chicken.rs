@@ -6,7 +6,7 @@ use crate::{
     interactions::Interaction,
     maps::{tile_to_screen, LerpMove, MapElement, RegionMap, TilePosition},
     random::Rng,
-    TimeStepResource,
+    GameElement, TimeStepResource,
 };
 use bevy::prelude::*;
 
@@ -39,7 +39,8 @@ pub fn spawn_chicken(x: i32, y: i32, assets: &GameAssets, commands: &mut Command
         .insert(FieldOfView::new(3))
         .insert(MapElement)
         .insert(Health { current: 1, max: 1 })
-        .insert(Tasty); // Don't persist chickens between levels
+        .insert(Tasty)
+        .insert(GameElement); // Don't persist chickens between levels
 }
 
 pub fn chicken_ai(

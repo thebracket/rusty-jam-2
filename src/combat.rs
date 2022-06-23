@@ -1,10 +1,11 @@
 use crate::{
     actors::{Henry, Player},
+    ai::ActionRequest,
     assets::GameAssets,
     maps::{tile_to_screen, TilePosition},
-    TimeStepResource,
+    GameElement, GameState, TimeStepResource,
 };
-use bevy::prelude::*;
+use bevy::{ecs::event::Events, prelude::*};
 
 #[derive(Component)]
 pub struct Health {
@@ -52,7 +53,8 @@ pub fn setup_health_hud(commands: &mut Commands, assets: &GameAssets) {
             ),
             ..default()
         })
-        .insert(PlayerHealthLabel);
+        .insert(PlayerHealthLabel)
+        .insert(GameElement);
 }
 
 pub fn update_health_hud(
@@ -121,6 +123,8 @@ pub fn damage_system(
     mut commands: Commands,
     mut query: Query<(Entity, &mut Health, Option<&Henry>, Option<&Player>)>,
     mut growth: Query<(Entity, &mut Transform)>,
+    mut state: ResMut<State<GameState>>,
+    mut action_queue: ResMut<Events<ActionRequest>>,
 ) {
     let mut killers = Vec::new();
     for damage in events.iter() {
@@ -135,7 +139,9 @@ pub fn damage_system(
                         health.current = health.max;
                     } else if player.is_some() {
                         // End the game
+                        let _ = state.set(GameState::Dead);
                     } else {
+                        action_queue.clear();
                         commands.entity(e).despawn();
                     }
                 }

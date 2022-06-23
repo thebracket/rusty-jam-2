@@ -4,6 +4,7 @@ use crate::{
     assets::GameAssets,
     console::Console,
     random::Rng,
+    GameElement,
 };
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, DistanceAlg, Point, SmallVec};
@@ -106,7 +107,8 @@ impl RegionMap {
                 ),
                 ..default()
             })
-            .insert(MapElement);
+            .insert(MapElement)
+            .insert(GameElement);
     }
 
     pub fn transition_to(
