@@ -1,5 +1,5 @@
 use crate::{
-    combat::{LerpAttack, Unconscious},
+    combat::{LerpAttack, Unconscious, Dead},
     fov::FieldOfView,
     maps::{tile_index, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
     TimeStepResource,
@@ -17,9 +17,10 @@ pub fn chase_after<TYPE, TARGET>(
             Without<LerpMove>,
             Without<Unconscious>,
             Without<LerpAttack>,
+            Without<Dead>,
         ),
     >,
-    target_query: Query<&TilePosition, (With<TARGET>, Without<Unconscious>)>,
+    target_query: Query<&TilePosition, (With<TARGET>, Without<Unconscious>, Without<Dead>)>,
     map: Res<RegionMap>,
     mut actions: EventWriter<ActionRequest>,
     timer: Res<TimeStepResource>,

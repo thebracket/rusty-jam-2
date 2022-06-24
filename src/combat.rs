@@ -24,6 +24,12 @@ pub struct DamageMessage {
     pub to: Entity,
 }
 
+#[derive(Component)]
+pub struct Unconscious(pub u32);
+
+#[derive(Component)]
+pub struct Dead;
+
 pub fn setup_health_hud(commands: &mut Commands, assets: &GameAssets) {
     commands
         .spawn_bundle(TextBundle {
@@ -115,9 +121,6 @@ pub fn combat_lerp(
     }
 }
 
-#[derive(Component)]
-pub struct Unconscious(pub u32);
-
 pub fn damage_system(
     mut events: EventReader<DamageMessage>,
     mut commands: Commands,
@@ -126,7 +129,7 @@ pub fn damage_system(
         Query<(Entity, &mut Transform, &mut Health)>,
     )>,
     mut state: ResMut<State<GameState>>,
-    mut action_queue: ResMut<Events<ActionRequest>>,
+    //mut action_queue: ResMut<Events<ActionRequest>>,
 ) {
     let mut killers = Vec::new();
     for damage in events.iter() {
@@ -145,8 +148,11 @@ pub fn damage_system(
                         // End the game
                         let _ = state.set(GameState::Dead);
                     } else {
-                        action_queue.update();
-                        commands.entity(e).despawn();
+                        //action_queue.update();
+                        //commands.entity(e).despawn();
+                        commands.entity(e).insert(Dead);
+                        commands.entity(e).remove::<Sprite>();
+                        commands.entity(e).remove::<TextureAtlasSprite>();
                     }
                 }
             }

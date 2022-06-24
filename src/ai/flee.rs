@@ -1,5 +1,5 @@
 use crate::{
-    combat::{LerpAttack, Unconscious},
+    combat::{LerpAttack, Unconscious, Dead},
     fov::FieldOfView,
     maps::{tile_index, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
     TimeStepResource,
@@ -17,9 +17,10 @@ pub fn flee_from<TYPE, SCARY>(
             Without<LerpMove>,
             Without<LerpAttack>,
             Without<Unconscious>,
+            Without<Dead>,
         ),
     >,
-    scary_query: Query<&TilePosition, With<SCARY>>,
+    scary_query: Query<&TilePosition, (With<SCARY>, Without<Dead>)>,
     map: Res<RegionMap>,
     mut actions: EventWriter<ActionRequest>,
     timer: Res<TimeStepResource>,
