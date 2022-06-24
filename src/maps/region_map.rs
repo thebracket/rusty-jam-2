@@ -1,6 +1,6 @@
 use super::{builder, tile_index, MapToBuild, TileMapLayer, TileType, NUM_TILES_X, NUM_TILES_Y};
 use crate::{
-    actors::{spawn_chicken, spawn_farmer, spawn_mommy_wolf, spawn_spikes, spawn_wolf},
+    actors::{spawn_chicken, spawn_farmer, spawn_mommy_wolf, spawn_spikes, spawn_wolf, spawn_spider},
     assets::GameAssets,
     combat::Health,
     console::Console,
@@ -56,6 +56,7 @@ impl RegionMap {
                 "WhiteWolf" => spawn_mommy_wolf(*x, *y, 35, assets, commands),
                 "Spikes1" => spawn_spikes(*x, *y, false, assets, commands),
                 "Spikes2" => spawn_spikes(*x, *y, true, assets, commands),
+                "Spider" => spawn_spider(*x, *y, assets, commands),
                 _ => println!("Warning: Don't know how to spawn a [{tag}]"),
             }
         }
@@ -134,6 +135,7 @@ impl RegionMap {
             1 => MapToBuild::FarmHouse,
             2 => MapToBuild::Cave1,
             3 => MapToBuild::Cave2,
+            4 => MapToBuild::Forest,
             _ => MapToBuild::FarmerTomCoup,
         };
         let new_data = builder(to_build, rng, Some(self.id));

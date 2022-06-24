@@ -8,6 +8,7 @@ pub struct GameAssets {
     pub doggies: Handle<TextureAtlas>,
     pub chick: Handle<TextureAtlas>,
     pub spikes: Handle<TextureAtlas>,
+    pub spiders: Handle<TextureAtlas>,
     pub tom: Handle<Image>,
     pub main_menu: Handle<Image>,
     pub dead_menu: Handle<Image>,
@@ -44,6 +45,11 @@ impl GameAssets {
         let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 2, 1);
         let spike_atlas_handle = texture_atlases.add(texture_atlas);
 
+        // Load the spiders
+        let texture_handle = asset_server.load("spider01.png");
+        let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(32.0, 32.0), 10, 5);
+        let spider_atlas_handle = texture_atlases.add(texture_atlas);
+
         // Return the assets
         Self {
             font: asset_server.load("Titania.ttf"),
@@ -51,6 +57,7 @@ impl GameAssets {
             player_chicken: texture_atlas_handle,
             doggies: dog_atlas_handle,
             chick: chick_atlas_handle,
+            spiders: spider_atlas_handle,
             tom: asset_server.load("tom.png"),
             spikes: spike_atlas_handle,
             main_menu: asset_server.load("MainMenu.png"),

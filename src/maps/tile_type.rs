@@ -47,6 +47,7 @@ pub enum TileType {
     Grain,
     Fire,
     GoldEgg,
+    Web,
 }
 
 impl TileType {
@@ -91,6 +92,7 @@ impl TileType {
             TileType::WaterV4 => 40,
             TileType::WaterV5 => 41,
             TileType::WaterV6 => 42,
+            TileType::Web => 14,
             _ => 0,
         }
     }

@@ -4,6 +4,7 @@ mod cave1;
 mod cave2;
 mod coup;
 mod tom_house;
+mod forest;
 mod unreachable;
 mod utils;
 
@@ -13,6 +14,7 @@ pub enum MapToBuild {
     FarmHouse,
     Cave1,
     Cave2,
+    Forest,
 }
 
 pub struct MapTransfer {
@@ -30,6 +32,7 @@ pub fn builder(map: MapToBuild, rng: &Rng, from: Option<MapToBuild>) -> MapTrans
         MapToBuild::FarmHouse => tom_house::build_toms_house(rng, from),
         MapToBuild::Cave1 => cave1::build(rng, from),
         MapToBuild::Cave2 => cave2::build(rng, from),
+        MapToBuild::Forest => forest::build(rng, from),
     }
 }
 

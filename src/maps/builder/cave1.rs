@@ -26,7 +26,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     for x in 26..=29 {
         let idx = tile_index(x, NUM_TILES_Y as i32 - 1);
         tiles[idx] = TileType::CaveFloor;
-        exits.push((idx, 1));
+        exits.push((idx, 3));
     }
 
     let mut rooms = Vec::new();

@@ -84,7 +84,7 @@ pub fn build_toms_house(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     for x in 26..=29 {
         let idx = tile_index(x, 0);
         features[idx] = TileType::None;
-        exits.push((idx, 2));
+        exits.push((idx, 4));
     }
 
     // Add some pretty flowers and chickens

@@ -1,6 +1,6 @@
 use actors::{
     chicken_ai, henry_ai, player_movement, spawn_henry, spawn_player, spike_system,
-    unconscious_henry, Chicken, Farmer, Henry, Player, ScaresChickens, Tasty, Wolf,
+    unconscious_henry, Chicken, Farmer, Henry, Player, ScaresChickens, Tasty, Wolf, Spider,
 };
 use ai::{attacks, chase_after, flee_from, process_actions, ActionRequest};
 use assets::GameAssets;
@@ -103,6 +103,7 @@ fn main() {
         // Chasing Targets
         .with_system(chase_after::<Henry, Hostile>)
         .with_system(chase_after::<Wolf, Tasty>)
+        .with_system(chase_after::<Spider, Tasty>)
         // Actor-level AI
         .with_system(chicken_ai)
         .with_system(henry_ai)
@@ -110,6 +111,7 @@ fn main() {
         // Killing things
         .with_system(spike_system)
         .with_system(attacks::<Wolf, Tasty>)
+        .with_system(attacks::<Spider, Tasty>)
         .with_system(attacks::<Henry, Hostile>)
         .with_system(attacks::<Player, Hostile>); // Auto attack mode
 
@@ -225,8 +227,8 @@ fn setup_game(
     console_setup(&assets, &mut commands, &console);
 
     // Spawn a map
-    let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
-    //let mut region_map = RegionMap::new(MapToBuild::Cave2, &rng);
+    //let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
+    let mut region_map = RegionMap::new(MapToBuild::Forest, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player
