@@ -184,7 +184,7 @@ fn main() {
         .add_system_set(cleanup_step)
         // The battle system runs next-to-last, since it can delete things
         .add_stage_after(
-            CoreStage::PostUpdate,
+            "CleanupStage",
             "battle",
             SystemStage::single_threaded(),
         )

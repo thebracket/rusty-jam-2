@@ -35,8 +35,10 @@ pub fn map_exits(
 
     if let Some(new_map) = transition {
         // Clear the events queue
-        events.clear();
-        damage.clear();
+        events.update();
+        damage.update();
+        events.update();
+        damage.update();
         //events.update();
         //damage.update();
 
