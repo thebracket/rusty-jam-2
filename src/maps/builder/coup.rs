@@ -1,9 +1,9 @@
-use super::{MapToBuild, MapTransfer};
+use super::{MapToBuild, MapTransfer, unreachable::unreachable};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
 };
-use bracket_pathfinding::prelude::{DistanceAlg, Point};
+use bracket_pathfinding::prelude::{DistanceAlg, Point, Rect};
 
 pub fn build_farmer_tom_coup(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut tiles = vec![TileType::Grass; NUM_TILES_X * NUM_TILES_Y];
@@ -51,6 +51,14 @@ pub fn build_farmer_tom_coup(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer
         }
         for x in 0..rng.range(1, 5) {
             features[tile_index(NUM_TILES_X as i32 - 1 - x, y)] = TileType::Bush;
+        }
+    }
+
+    // Cull unreachable
+    let coup = Rect::with_exact(11, 7, 21, 13);
+    for idx in unreachable(&tiles, &features, &vec![tile_index(15, 14)]) {
+        if !coup.point_in_rect(Point::new(idx % NUM_TILES_X, idx / NUM_TILES_X)) {
+            features[idx] = TileType::Bush;
         }
     }
 
