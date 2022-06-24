@@ -23,7 +23,7 @@ cargo build --release
 copy target\release\rust_jam_chicken_dog.exe release\itch
 
 REM Build for Linux
-cargo build --release --target x86_64-pc-windows-gnu
+rem cargo build --release --target x86_64-pc-windows-gnu
 copy .\target\release\rust_jam_chicken_dog release\linux
 
 REM Build for WASM and Upload
