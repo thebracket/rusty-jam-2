@@ -26,6 +26,17 @@ pub enum TileType {
     CobbleBL,
     CobbleB,
     CobbleBR,
+    WaterL,
+    WaterTL,
+    WaterT,
+    WaterTR,
+    WaterR,
+    WaterBL,
+    WaterB,
+    WaterBR,
+    //WaterLR,
+    WaterTB,
+    WaterV2, WaterV3, WaterV4, WaterV5, WaterV6,
     Anvil,
     CaveFloor,
     Water,
@@ -61,6 +72,21 @@ impl TileType {
             TileType::CobbleBL => 51,
             TileType::CobbleB => 52,
             TileType::CobbleBR => 53,
+            TileType::WaterL => 22,
+            TileType::WaterTL => 23,
+            TileType::WaterT => 24,
+            TileType::WaterTR => 25,
+            TileType::WaterR => 26,
+            TileType::WaterBL => 27,
+            TileType::WaterB => 28,
+            TileType::WaterBR => 29,
+            //TileType::WaterLR => 30,
+            TileType::WaterTB => 31,
+            TileType::WaterV2 => 38,
+            TileType::WaterV3 => 39,
+            TileType::WaterV4 => 40,
+            TileType::WaterV5 => 41,
+            TileType::WaterV6 => 42,
             _ => 0,
         }
     }
@@ -106,6 +132,11 @@ impl TileType {
             | TileType::Anvil
             | TileType::CaveMouth
             | TileType::Water
+            | TileType::WaterV2
+            | TileType::WaterV3
+            | TileType::WaterV4
+            | TileType::WaterV5
+            | TileType::WaterV6
             | TileType::Fire => false,
             _ => true,
         }

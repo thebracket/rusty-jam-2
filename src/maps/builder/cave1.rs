@@ -1,4 +1,4 @@
-use super::{MapToBuild, MapTransfer};
+use super::{MapToBuild, MapTransfer, utils::{decorate_water, decorate_beach}};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
@@ -33,7 +33,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
         29,
         NUM_TILES_Y as i32 - 1,
     ));
-    while rooms.len() < 7 {
+    while rooms.len() < 10 {
         let try_room = Rect::with_size(
             rng.range(0, NUM_TILES_X as i32),
             rng.range(1, NUM_TILES_Y as i32),
@@ -70,6 +70,9 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     rooms.sort_by(|a, b| a.center().x.cmp(&b.center().x));
     build_corridors(&rng, &rooms, &mut tiles);
 
+    decorate_beach(&mut tiles);
+    decorate_water(&mut tiles, &rng);
+
     rooms.iter().skip(1).for_each(|r| {
         spawns.push(("WeakWolf".to_string(), r.center().x, r.center().y));
     });
@@ -77,7 +80,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     MapTransfer {
         tiles,
         features,
-        name: "Farmer Tom's House".to_string(),
+        name: "Sunken Cavern".to_string(),
         player_start,
         exits,
         spawns,
@@ -90,6 +93,7 @@ fn apply_horizontal_tunnel(x1: i32, x2: i32, y: i32, tiles: &mut [TileType]) {
     use std::cmp::{max, min};
     for x in min(x1, x2)..=max(x1, x2) {
         tiles[tile_index(x, y)] = TileType::CaveFloor;
+        tiles[tile_index(x, y+1)] = TileType::CaveFloor;
     }
 }
 
@@ -97,6 +101,7 @@ fn apply_vertical_tunnel(y1: i32, y2: i32, x: i32, tiles: &mut [TileType]) {
     use std::cmp::{max, min};
     for y in min(y1, y2)..=max(y1, y2) {
         tiles[tile_index(x, y)] = TileType::CaveFloor;
+        tiles[tile_index(x+1, y)] = TileType::CaveFloor;
     }
 }
 

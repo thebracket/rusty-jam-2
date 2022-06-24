@@ -145,7 +145,7 @@ pub fn damage_system(
                         // End the game
                         let _ = state.set(GameState::Dead);
                     } else {
-                        action_queue.clear();
+                        action_queue.update();
                         commands.entity(e).despawn();
                     }
                 }

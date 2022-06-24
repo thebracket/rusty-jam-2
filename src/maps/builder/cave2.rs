@@ -1,4 +1,4 @@
-use super::{MapToBuild, MapTransfer};
+use super::{MapToBuild, MapTransfer, utils::{decorate_water, decorate_beach}};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
@@ -31,7 +31,8 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
         for x in 2..=8 {
             let idx = tile_index(x, y);
             if y % 2 == 0 {
-                tiles[idx] = TileType::Fire;
+                tiles[idx] = TileType::CaveFloor;
+                features[idx] = TileType::Fire;
             } else {
                 tiles[idx] = TileType::CaveFloor;
                 if (x + y) % 2 == 0 {
@@ -73,10 +74,13 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     features[tile_index(30, 8)] = TileType::GoldEgg;
     spawns.push(("WhiteWolf".to_string(), 20, 8));
 
+    decorate_beach(&mut tiles);
+    decorate_water(&mut tiles, &rng);
+
     MapTransfer {
         tiles,
         features,
-        name: "Farmer Tom's House".to_string(),
+        name: "Lair of the White Wolf".to_string(),
         player_start,
         exits,
         spawns,

@@ -80,14 +80,12 @@ pub fn build_toms_house(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     // Add a rocky outcropping
     spawn_big_feature(0, 11, TileType::LeftButte, &mut features);
 
-    // Add a cave mouth
-    spawn_big_feature(25, 0, TileType::CaveMouth, &mut features);
-    //exits.push((tile_index(25, 3), 2));
-    exits.push((tile_index(26, 1), 2));
-    exits.push((tile_index(27, 1), 2));
-    exits.push((tile_index(28, 1), 2));
-    exits.push((tile_index(29, 1), 2));
-    //exits.push((tile_index(30, 3), 2));
+    // Add a pathway out
+    for x in 26..=29 {
+        let idx = tile_index(x, 0);
+        features[idx] = TileType::None;
+        exits.push((idx, 2));
+    }
 
     // Add some pretty flowers and chickens
     tiles.iter_mut().enumerate().for_each(|(idx, t)| {

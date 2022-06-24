@@ -1,6 +1,7 @@
 use super::{tile_index, TileType};
 use crate::random::Rng;
 mod unreachable;
+mod utils;
 mod cave1;
 mod cave2;
 mod coup;
