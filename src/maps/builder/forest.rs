@@ -1,5 +1,4 @@
 use super::{
-    utils::{decorate_beach, decorate_water},
     MapToBuild, MapTransfer, unreachable::unreachable,
 };
 use crate::{
@@ -14,7 +13,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut spawns = Vec::new();
     let player_start = if let Some(from) = from {
         match from {
-            MapToBuild::Cave2 => (3, 0),
+            MapToBuild::Cave1 => (27, 0),
             _ => (27, NUM_TILES_Y as i32 - 1),
         }
     } else {
