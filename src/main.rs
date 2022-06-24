@@ -190,7 +190,7 @@ fn main() {
         )
         .add_system(damage_system)
         // A final stage for migrating between maps
-        .add_stage_after("battle", "migration", SystemStage::single_threaded())
+        .add_stage_after(CoreStage::Update, "migration", SystemStage::single_threaded())
         .add_system_set(migrate_step)
         .run();
 }

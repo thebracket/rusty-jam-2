@@ -15,8 +15,8 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut spawns = Vec::new();
     let player_start = if let Some(from) = from {
         match from {
-            MapToBuild::Cave2 => (3, 0),
-            _ => (27, NUM_TILES_Y as i32 - 1),
+            MapToBuild::Cave2 => (3, 1),
+            _ => (27, NUM_TILES_Y as i32 - 2),
         }
     } else {
         (NUM_TILES_X as i32 / 2, NUM_TILES_Y as i32 / 2)
@@ -32,7 +32,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
     let mut rooms = Vec::new();
     rooms.push(Rect::with_exact(
         26,
-        NUM_TILES_Y as i32 - 2,
+        NUM_TILES_Y as i32 - 3,
         29,
         NUM_TILES_Y as i32 - 1,
     ));
@@ -56,7 +56,7 @@ pub fn build(rng: &Rng, from: Option<MapToBuild>) -> MapTransfer {
             rooms.push(try_room);
         }
     }
-    rooms.push(Rect::with_exact(3, 0, 5, 0));
+    rooms.push(Rect::with_exact(3, 0, 5, 2));
     for x in 3..=5 {
         let idx = tile_index(x, 0);
         tiles[idx] = TileType::CaveFloor;

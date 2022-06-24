@@ -24,7 +24,7 @@ copy target\release\rust_jam_chicken_dog.exe release\itch
 
 REM Build for Linux
 cargo build --release --target x86_64-pc-windows-gnu
-copy .\target\x86_64-pc-windows-gnu\release\rust_jam_chicken_dog release\linux
+copy .\target\release\rust_jam_chicken_dog release\linux
 
 REM Build for WASM and Upload
 cargo build --release --target wasm32-unknown-unknown
