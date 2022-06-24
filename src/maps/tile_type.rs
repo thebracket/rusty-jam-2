@@ -15,7 +15,7 @@ pub enum TileType {
     ReferTo(usize),
     Barn,
     LeftButte,
-    CaveMouth,
+    //CaveMouth,
     Cauldron,
     CobbleTL,
     CobbleT,
@@ -116,14 +116,14 @@ impl TileType {
                     112, 113, 128, 129, 144, 145, 160, 161, 176, 177, 192, 193, 208, 209,
                 ],
             )),
-            TileType::CaveMouth => Some((
+            /*TileType::CaveMouth => Some((
                 6,
                 1,
                 vec![
                     //146, 147, 148, 149, 150, 151, 162, 163, 164, 165, 166, 167,
                     178, 179, 180, 181, 182, 183,
                 ],
-            )),
+            )),*/
             _ => None,
         }
     }
@@ -136,7 +136,7 @@ impl TileType {
             | TileType::HayCart
             | TileType::Barn
             | TileType::Anvil
-            | TileType::CaveMouth
+            //| TileType::CaveMouth
             | TileType::Water
             | TileType::WaterV2
             | TileType::WaterV3
