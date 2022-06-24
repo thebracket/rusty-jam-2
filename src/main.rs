@@ -227,8 +227,8 @@ fn setup_game(
     console_setup(&assets, &mut commands, &console);
 
     // Spawn a map
-    //let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
-    let mut region_map = RegionMap::new(MapToBuild::Forest, &rng);
+    let mut region_map = RegionMap::new(MapToBuild::FarmerTomCoup, &rng);
+    //let mut region_map = RegionMap::new(MapToBuild::Forest, &rng);
     region_map.spawn(&assets, &mut meshes, &mut commands);
 
     // Spawn the player
