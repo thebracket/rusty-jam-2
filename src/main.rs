@@ -275,6 +275,7 @@ fn start_dead_menu(mut commands: Commands, assets: Res<GameAssets>) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: assets.dead_menu.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 10.0),
             ..default()
         })
         .insert(MainMenu);
@@ -294,6 +295,7 @@ fn start_won_menu(mut commands: Commands, assets: Res<GameAssets>) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: assets.won_menu.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 10.0),
             ..default()
         })
         .insert(MainMenu);
