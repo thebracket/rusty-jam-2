@@ -1,11 +1,11 @@
 use super::{tile_index, TileType};
 use crate::random::Rng;
-mod unreachable;
-mod utils;
 mod cave1;
 mod cave2;
 mod coup;
 mod tom_house;
+mod unreachable;
+mod utils;
 
 #[derive(Clone, Copy)]
 pub enum MapToBuild {

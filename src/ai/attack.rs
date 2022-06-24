@@ -1,6 +1,6 @@
 use super::ActionRequest;
 use crate::{
-    combat::{LerpAttack, Unconscious, Dead},
+    combat::{Dead, LerpAttack, Unconscious},
     maps::{LerpMove, TilePosition},
     TimeStepResource,
 };
@@ -12,7 +12,12 @@ pub fn attacks<TYPE, TARGET>(
         (Entity, &TilePosition),
         (
             With<TYPE>,
-            (Without<Unconscious>, Without<LerpMove>, Without<LerpAttack>, Without<Dead>),
+            (
+                Without<Unconscious>,
+                Without<LerpMove>,
+                Without<LerpAttack>,
+                Without<Dead>,
+            ),
         ),
     >,
     them: Query<(Entity, &TilePosition), (With<TARGET>, Without<Unconscious>, Without<Dead>)>,

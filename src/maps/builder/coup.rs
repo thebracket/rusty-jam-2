@@ -1,4 +1,4 @@
-use super::{MapToBuild, MapTransfer, unreachable::unreachable};
+use super::{unreachable::unreachable, MapToBuild, MapTransfer};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,

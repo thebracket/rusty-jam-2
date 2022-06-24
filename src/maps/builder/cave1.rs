@@ -1,4 +1,7 @@
-use super::{MapToBuild, MapTransfer, utils::{decorate_water, decorate_beach}};
+use super::{
+    utils::{decorate_beach, decorate_water},
+    MapToBuild, MapTransfer,
+};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,
@@ -93,7 +96,7 @@ fn apply_horizontal_tunnel(x1: i32, x2: i32, y: i32, tiles: &mut [TileType]) {
     use std::cmp::{max, min};
     for x in min(x1, x2)..=max(x1, x2) {
         tiles[tile_index(x, y)] = TileType::CaveFloor;
-        tiles[tile_index(x, y+1)] = TileType::CaveFloor;
+        tiles[tile_index(x, y + 1)] = TileType::CaveFloor;
     }
 }
 
@@ -101,7 +104,7 @@ fn apply_vertical_tunnel(y1: i32, y2: i32, x: i32, tiles: &mut [TileType]) {
     use std::cmp::{max, min};
     for y in min(y1, y2)..=max(y1, y2) {
         tiles[tile_index(x, y)] = TileType::CaveFloor;
-        tiles[tile_index(x+1, y)] = TileType::CaveFloor;
+        tiles[tile_index(x + 1, y)] = TileType::CaveFloor;
     }
 }
 

@@ -1,4 +1,7 @@
-use super::{MapToBuild, MapTransfer, utils::{decorate_water, decorate_beach}};
+use super::{
+    utils::{decorate_beach, decorate_water},
+    MapToBuild, MapTransfer,
+};
 use crate::{
     maps::{tile_index, TileType, NUM_TILES_X, NUM_TILES_Y},
     random::Rng,

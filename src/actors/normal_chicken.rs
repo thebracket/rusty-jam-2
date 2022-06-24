@@ -1,7 +1,7 @@
 use crate::{
     ai::{Action, ActionRequest},
     assets::GameAssets,
-    combat::{Health, LerpAttack, Dead},
+    combat::{Dead, Health, LerpAttack},
     fov::FieldOfView,
     interactions::Interaction,
     maps::{tile_to_screen, LerpMove, MapElement, RegionMap, TilePosition},
@@ -47,7 +47,12 @@ pub fn chicken_ai(
     map: Res<RegionMap>,
     mut ai_query: Query<
         (Entity, &TilePosition, &mut TextureAtlasSprite),
-        (With<Chicken>, Without<LerpMove>, Without<LerpAttack>, Without<Dead>),
+        (
+            With<Chicken>,
+            Without<LerpMove>,
+            Without<LerpAttack>,
+            Without<Dead>,
+        ),
     >,
     rng: Res<Rng>,
     mut actions: EventWriter<ActionRequest>,

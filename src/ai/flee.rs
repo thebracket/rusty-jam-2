@@ -1,5 +1,5 @@
 use crate::{
-    combat::{LerpAttack, Unconscious, Dead},
+    combat::{Dead, LerpAttack, Unconscious},
     fov::FieldOfView,
     maps::{tile_index, LerpMove, RegionMap, TilePosition, NUM_TILES_X, NUM_TILES_Y},
     TimeStepResource,
