@@ -20,7 +20,7 @@ pub fn spawn_spikes(x: i32, y: i32, extended: bool, assets: &GameAssets, command
             ..default()
         })
         .insert(TilePosition { x, y })
-        .insert(Spike(Timer::from_seconds(1.7, true)))
+        .insert(Spike(Timer::from_seconds(2.5, true)))
         .insert(MapElement)
         .insert(GameElement);
 }
